@@ -464,10 +464,6 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                                     0.0, 12.0, 0.0, 44.0),
                                 child: FFButtonWidget(
                                   onPressed: () async {
-                                    await currentUserReference!
-                                        .update(createUsersRecordData(
-                                      displayName: 'Jane Williams',
-                                    ));
                                     GoRouter.of(context).prepareAuthEvent();
                                     final user = await authManager
                                         .signInAnonymously(context);
@@ -475,8 +471,13 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                                       return;
                                     }
 
+                                    await currentUserReference!
+                                        .update(createUsersRecordData(
+                                      displayName: 'Guest user',
+                                    ));
+
                                     context.goNamedAuth(
-                                        'HomePage', context.mounted);
+                                        'onboarding', context.mounted);
                                   },
                                   text: 'Continue as Guest',
                                   options: FFButtonOptions(
@@ -486,7 +487,7 @@ class _CreateAccountWidgetState extends State<CreateAccountWidget> {
                                         0.0, 0.0, 0.0, 0.0),
                                     iconPadding: EdgeInsetsDirectional.fromSTEB(
                                         0.0, 0.0, 0.0, 0.0),
-                                    color: Color(0x3E000000),
+                                    color: FlutterFlowTheme.of(context).primary,
                                     textStyle: FlutterFlowTheme.of(context)
                                         .titleSmall
                                         .override(

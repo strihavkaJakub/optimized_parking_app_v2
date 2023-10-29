@@ -164,13 +164,13 @@ class _PaymentModalWidgetState extends State<PaymentModalWidget> {
                     context.goNamed(
                       'paymentComplete',
                       queryParameters: {
-                        'payedPrice': serializeParam(
-                          widget.paymentSum?.toString(),
-                          ParamType.String,
-                        ),
                         'isParkingPayment': serializeParam(
                           widget.isParkingPayment,
                           ParamType.bool,
+                        ),
+                        'payedPrice': serializeParam(
+                          widget.paymentSum,
+                          ParamType.double,
                         ),
                       }.withoutNulls,
                       extra: <String, dynamic>{

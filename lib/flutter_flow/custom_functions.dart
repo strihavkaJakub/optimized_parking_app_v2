@@ -12,18 +12,12 @@ import '/backend/backend.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '/auth/firebase_auth/auth_util.dart';
 
-double? calculateRange(
-  double? batterySizeKwh,
-  double? currentChargePercentage,
+double calculateRange(
+  double batterySIzeKwh,
+  double currentChargePercentage,
   double averageConsumptionKwh,
 ) {
-  // calculate range is (batterySizeKwh *  currentChargePercentage) /averageConsumptionKwh
-  if (batterySizeKwh == null ||
-      currentChargePercentage == null ||
-      averageConsumptionKwh == null) {
-    return null;
-  }
-  return (batterySizeKwh * currentChargePercentage) / averageConsumptionKwh;
+  return (batterySIzeKwh * currentChargePercentage) / averageConsumptionKwh;
 }
 
 double calculateParkingPrice(
@@ -64,12 +58,13 @@ int stringToInt(String string) {
 double calculatReservationPrice(
   DateTime reservationFrom,
   DateTime reservationTo,
+  double reservationPricePerMinute,
 ) {
   double price = (reservationTo.millisecondsSinceEpoch -
           reservationFrom.millisecondsSinceEpoch) /
       1000 /
       60 *
-      0.01;
+      reservationPricePerMinute;
   double roundedPrice = double.parse((price).toStringAsFixed(2));
   return roundedPrice;
 }
@@ -77,14 +72,14 @@ double calculatReservationPrice(
 String? calculateChargingTimeUntilDesiredCharge(
   double chargingSpeed,
   double currentCharge,
-  int? desiredCharge,
+  int desiredCharge,
+  double batterySIzeKwh,
 ) {
-  if (desiredCharge != null) {
-    if (desiredCharge > currentCharge) {
-      double capacityToCharge = desiredCharge - currentCharge;
-      double time = capacityToCharge / chargingSpeed * 60;
-      return getTimeStringFromMinutes(time);
-    }
+  if (desiredCharge > currentCharge) {
+    double percentToCharge = desiredCharge - currentCharge;
+    double capacityToCharge = batterySIzeKwh * percentToCharge / 100;
+    double time = capacityToCharge / chargingSpeed * 60;
+    return getTimeStringFromMinutes(time);
   }
   return null;
 }

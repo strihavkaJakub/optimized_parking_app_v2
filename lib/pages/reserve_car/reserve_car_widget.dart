@@ -257,14 +257,6 @@ class _ReserveCarWidgetState extends State<ReserveCarWidget> {
                                               return;
                                             }
 
-                                            await buttonChargingSpotsRecord!
-                                                .reference
-                                                .update(
-                                                    createChargingSpotsRecordData(
-                                              isReserved: true,
-                                              user: currentUserReference,
-                                            ));
-
                                             var reservationsRecordReference =
                                                 ReservationsRecord.createDoc(
                                                     buttonChargingSpotsRecord!
@@ -299,6 +291,17 @@ class _ReserveCarWidgetState extends State<ReserveCarWidget> {
                                               reservation: _model
                                                   .createdReservation
                                                   ?.reference,
+                                            ));
+
+                                            await buttonChargingSpotsRecord!
+                                                .reference
+                                                .update(
+                                                    createChargingSpotsRecordData(
+                                              reservation: _model
+                                                  .createdReservation
+                                                  ?.reference,
+                                              isReserved: true,
+                                              user: currentUserReference,
                                             ));
 
                                             context

@@ -36,11 +36,18 @@ class ParkingLotRecord extends FirestoreRecord {
   double get maximumPowerKwh => _maximumPowerKwh ?? 0.0;
   bool hasMaximumPowerKwh() => _maximumPowerKwh != null;
 
+  // "reservationPricePerMinute" field.
+  double? _reservationPricePerMinute;
+  double get reservationPricePerMinute => _reservationPricePerMinute ?? 0.0;
+  bool hasReservationPricePerMinute() => _reservationPricePerMinute != null;
+
   void _initializeFields() {
     _availablePowerKwh = castToType<double>(snapshotData['availablePowerKwh']);
     _latLngPosition = snapshotData['latLngPosition'] as LatLng?;
     _chargingSlots = getDataList(snapshotData['chargingSlots']);
     _maximumPowerKwh = castToType<double>(snapshotData['maximumPowerKwh']);
+    _reservationPricePerMinute =
+        castToType<double>(snapshotData['reservationPricePerMinute']);
   }
 
   static CollectionReference get collection =>
@@ -81,12 +88,14 @@ Map<String, dynamic> createParkingLotRecordData({
   double? availablePowerKwh,
   LatLng? latLngPosition,
   double? maximumPowerKwh,
+  double? reservationPricePerMinute,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
       'availablePowerKwh': availablePowerKwh,
       'latLngPosition': latLngPosition,
       'maximumPowerKwh': maximumPowerKwh,
+      'reservationPricePerMinute': reservationPricePerMinute,
     }.withoutNulls,
   );
 
@@ -102,7 +111,8 @@ class ParkingLotRecordDocumentEquality implements Equality<ParkingLotRecord> {
     return e1?.availablePowerKwh == e2?.availablePowerKwh &&
         e1?.latLngPosition == e2?.latLngPosition &&
         listEquality.equals(e1?.chargingSlots, e2?.chargingSlots) &&
-        e1?.maximumPowerKwh == e2?.maximumPowerKwh;
+        e1?.maximumPowerKwh == e2?.maximumPowerKwh &&
+        e1?.reservationPricePerMinute == e2?.reservationPricePerMinute;
   }
 
   @override
@@ -110,7 +120,8 @@ class ParkingLotRecordDocumentEquality implements Equality<ParkingLotRecord> {
         e?.availablePowerKwh,
         e?.latLngPosition,
         e?.chargingSlots,
-        e?.maximumPowerKwh
+        e?.maximumPowerKwh,
+        e?.reservationPricePerMinute
       ]);
 
   @override

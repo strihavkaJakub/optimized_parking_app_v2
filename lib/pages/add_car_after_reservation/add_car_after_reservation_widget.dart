@@ -596,80 +596,57 @@ class _AddCarAfterReservationWidgetState
                                   color: FlutterFlowTheme.of(context)
                                       .secondaryBackground,
                                 ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Align(
-                                      alignment:
-                                          AlignmentDirectional(0.00, 0.05),
-                                      child: Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 24.0, 0.0, 40.0),
-                                        child: FFButtonWidget(
-                                          onPressed: () async {
-                                            final firestoreBatch =
-                                                FirebaseFirestore.instance
-                                                    .batch();
-                                            try {
-                                              if (_model.formKey.currentState ==
-                                                      null ||
-                                                  !_model.formKey.currentState!
-                                                      .validate()) {
-                                                return;
-                                              }
+                                child: StreamBuilder<ParkingLotRecord>(
+                                  stream: ParkingLotRecord.getDocument(
+                                      addCarAfterReservationChargingSpotsRecord
+                                          .parkingLot!),
+                                  builder: (context, snapshot) {
+                                    // Customize what your widget looks like when it's loading.
+                                    if (!snapshot.hasData) {
+                                      return Center(
+                                        child: SizedBox(
+                                          width: 50.0,
+                                          height: 50.0,
+                                          child: SpinKitCubeGrid(
+                                            color: FlutterFlowTheme.of(context)
+                                                .primary,
+                                            size: 50.0,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    final columnParkingLotRecord =
+                                        snapshot.data!;
+                                    return Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Align(
+                                          alignment:
+                                              AlignmentDirectional(0.00, 0.05),
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 24.0, 0.0, 40.0),
+                                            child: FFButtonWidget(
+                                              onPressed: () async {
+                                                final firestoreBatch =
+                                                    FirebaseFirestore.instance
+                                                        .batch();
+                                                try {
+                                                  if (_model.formKey
+                                                              .currentState ==
+                                                          null ||
+                                                      !_model
+                                                          .formKey.currentState!
+                                                          .validate()) {
+                                                    return;
+                                                  }
 
-                                              var carRecordReference =
-                                                  CarRecord.collection.doc();
-                                              firestoreBatch.set(
-                                                  carRecordReference,
-                                                  createCarRecordData(
-                                                    batteryChargePercentage:
-                                                        double.tryParse(_model
-                                                            .chargePercentageController
-                                                            .text),
-                                                    batterySizeKwh:
-                                                        double.tryParse(_model
-                                                            .batterySizeController
-                                                            .text),
-                                                    availableRange: functions.calculateRange(
-                                                        double.tryParse(_model
-                                                            .batterySizeController
-                                                            .text),
-                                                        double.tryParse(_model
-                                                            .chargePercentageController
-                                                            .text),
-                                                        double.parse(_model
-                                                            .averageConsumptionController
-                                                            .text)),
-                                                    vehicleRegistrationPlate: _model
-                                                        .vehicleRegistraionPlateController
-                                                        .text,
-                                                    averageConsumptionKWh:
-                                                        double.tryParse(_model
-                                                            .averageConsumptionController
-                                                            .text),
-                                                    carUser:
-                                                        currentUserReference,
-                                                    desiredDepartureDateTime:
-                                                        _model.datePicked,
-                                                    desiredChargeAtDeparture:
-                                                        functions.stringToInt(
-                                                            valueOrDefault<
-                                                                String>(
-                                                      _model
-                                                          .batteryLimitSliderModel
-                                                          .sliderValue
-                                                          ?.toString(),
-                                                      '80',
-                                                    )),
-                                                    carChargingSpot:
-                                                        currentUserDocument
-                                                            ?.chargingSpot,
-                                                    parkedFrom:
-                                                        getCurrentTimestamp,
-                                                  ));
-                                              _model.outputCar =
-                                                  CarRecord.getDocumentFromData(
+                                                  var carRecordReference =
+                                                      CarRecord.collection
+                                                          .doc();
+                                                  firestoreBatch.set(
+                                                      carRecordReference,
                                                       createCarRecordData(
                                                         batteryChargePercentage:
                                                             double.tryParse(_model
@@ -680,10 +657,10 @@ class _AddCarAfterReservationWidgetState
                                                                 .batterySizeController
                                                                 .text),
                                                         availableRange: functions.calculateRange(
-                                                            double.tryParse(_model
+                                                            double.parse(_model
                                                                 .batterySizeController
                                                                 .text),
-                                                            double.tryParse(_model
+                                                            double.parse(_model
                                                                 .chargePercentageController
                                                                 .text),
                                                             double.parse(_model
@@ -716,134 +693,199 @@ class _AddCarAfterReservationWidgetState
                                                                 ?.chargingSpot,
                                                         parkedFrom:
                                                             getCurrentTimestamp,
-                                                      ),
-                                                      carRecordReference);
+                                                      ));
+                                                  _model.outputCar = CarRecord
+                                                      .getDocumentFromData(
+                                                          createCarRecordData(
+                                                            batteryChargePercentage:
+                                                                double.tryParse(
+                                                                    _model
+                                                                        .chargePercentageController
+                                                                        .text),
+                                                            batterySizeKwh: double
+                                                                .tryParse(_model
+                                                                    .batterySizeController
+                                                                    .text),
+                                                            availableRange: functions.calculateRange(
+                                                                double.parse(_model
+                                                                    .batterySizeController
+                                                                    .text),
+                                                                double.parse(_model
+                                                                    .chargePercentageController
+                                                                    .text),
+                                                                double.parse(_model
+                                                                    .averageConsumptionController
+                                                                    .text)),
+                                                            vehicleRegistrationPlate:
+                                                                _model
+                                                                    .vehicleRegistraionPlateController
+                                                                    .text,
+                                                            averageConsumptionKWh:
+                                                                double.tryParse(
+                                                                    _model
+                                                                        .averageConsumptionController
+                                                                        .text),
+                                                            carUser:
+                                                                currentUserReference,
+                                                            desiredDepartureDateTime:
+                                                                _model
+                                                                    .datePicked,
+                                                            desiredChargeAtDeparture:
+                                                                functions.stringToInt(
+                                                                    valueOrDefault<
+                                                                        String>(
+                                                              _model
+                                                                  .batteryLimitSliderModel
+                                                                  .sliderValue
+                                                                  ?.toString(),
+                                                              '80',
+                                                            )),
+                                                            carChargingSpot:
+                                                                currentUserDocument
+                                                                    ?.chargingSpot,
+                                                            parkedFrom:
+                                                                getCurrentTimestamp,
+                                                          ),
+                                                          carRecordReference);
 
-                                              firestoreBatch.update(
-                                                  currentUserReference!,
-                                                  createUsersRecordData(
-                                                    car: _model
-                                                        .outputCar?.reference,
-                                                  ));
+                                                  firestoreBatch.update(
+                                                      currentUserReference!,
+                                                      createUsersRecordData(
+                                                        car: _model.outputCar
+                                                            ?.reference,
+                                                        parkingLot:
+                                                            columnParkingLotRecord
+                                                                .reference,
+                                                      ));
 
-                                              firestoreBatch.update(
-                                                  addCarAfterReservationChargingSpotsRecord
-                                                      .reference,
-                                                  {
-                                                    ...createChargingSpotsRecordData(
-                                                      isOccupied: true,
-                                                      isReserved: false,
-                                                      car: currentUserDocument
-                                                          ?.car,
-                                                      user:
-                                                          currentUserReference,
-                                                      isCharging: true,
-                                                    ),
-                                                    ...mapToFirestore(
+                                                  firestoreBatch.update(
+                                                      addCarAfterReservationChargingSpotsRecord
+                                                          .reference,
                                                       {
-                                                        'reservation':
-                                                            FieldValue.delete(),
-                                                      },
-                                                    ),
-                                                  });
-                                              if (Navigator.of(context)
-                                                  .canPop()) {
-                                                context.pop();
-                                              }
-                                              context.pushNamed('HomePage');
-                                            } finally {
-                                              await firestoreBatch.commit();
-                                            }
+                                                        ...createChargingSpotsRecordData(
+                                                          isOccupied: true,
+                                                          isReserved: false,
+                                                          car:
+                                                              currentUserDocument
+                                                                  ?.car,
+                                                          user:
+                                                              currentUserReference,
+                                                          isCharging: true,
+                                                        ),
+                                                        ...mapToFirestore(
+                                                          {
+                                                            'reservation':
+                                                                FieldValue
+                                                                    .delete(),
+                                                          },
+                                                        ),
+                                                      });
+                                                  if (Navigator.of(context)
+                                                      .canPop()) {
+                                                    context.pop();
+                                                  }
+                                                  context.pushNamed('HomePage');
+                                                } finally {
+                                                  await firestoreBatch.commit();
+                                                }
 
-                                            setState(() {});
-                                          },
-                                          text: 'Complete Account',
-                                          options: FFButtonOptions(
-                                            width: 230.0,
-                                            height: 50.0,
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 0.0),
-                                            iconPadding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 0.0),
-                                            color: Color(0xFF39D2C0),
-                                            textStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .override(
-                                                      fontFamily: 'Lexend Deca',
-                                                      color: Colors.white,
-                                                      fontSize: 16.0,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                    ),
-                                            elevation: 2.0,
-                                            borderSide: BorderSide(
-                                              color: Colors.transparent,
-                                              width: 1.0,
+                                                setState(() {});
+                                              },
+                                              text: 'Complete Account',
+                                              options: FFButtonOptions(
+                                                width: 230.0,
+                                                height: 50.0,
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(
+                                                        0.0, 0.0, 0.0, 0.0),
+                                                iconPadding:
+                                                    EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                            0.0, 0.0, 0.0, 0.0),
+                                                color: Color(0xFF39D2C0),
+                                                textStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .override(
+                                                          fontFamily:
+                                                              'Lexend Deca',
+                                                          color: Colors.white,
+                                                          fontSize: 16.0,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                        ),
+                                                elevation: 2.0,
+                                                borderSide: BorderSide(
+                                                  color: Colors.transparent,
+                                                  width: 1.0,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(30.0),
+                                              ),
                                             ),
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    Align(
-                                      alignment:
-                                          AlignmentDirectional(0.00, 0.05),
-                                      child: Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            0.0, 0.0, 0.0, 40.0),
-                                        child: FFButtonWidget(
-                                          onPressed: () async {
-                                            GoRouter.of(context)
-                                                .prepareAuthEvent();
-                                            await authManager.signOut();
-                                            GoRouter.of(context)
-                                                .clearRedirectLocation();
-
-                                            if (Navigator.of(context)
-                                                .canPop()) {
-                                              context.pop();
-                                            }
-                                            context.pushNamedAuth(
-                                                'Login', context.mounted);
-                                          },
-                                          text: 'Cancel',
-                                          options: FFButtonOptions(
-                                            width: 230.0,
-                                            height: 50.0,
+                                        Align(
+                                          alignment:
+                                              AlignmentDirectional(0.00, 0.05),
+                                          child: Padding(
                                             padding:
                                                 EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 0.0),
-                                            iconPadding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 0.0, 0.0, 0.0),
-                                            color: FlutterFlowTheme.of(context)
-                                                .error,
-                                            textStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .override(
-                                                      fontFamily: 'Lexend Deca',
-                                                      color: Colors.white,
-                                                      fontSize: 16.0,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                    ),
-                                            elevation: 2.0,
-                                            borderSide: BorderSide(
-                                              color: Colors.transparent,
-                                              width: 1.0,
+                                                    0.0, 0.0, 0.0, 40.0),
+                                            child: FFButtonWidget(
+                                              onPressed: () async {
+                                                GoRouter.of(context)
+                                                    .prepareAuthEvent();
+                                                await authManager.signOut();
+                                                GoRouter.of(context)
+                                                    .clearRedirectLocation();
+
+                                                if (Navigator.of(context)
+                                                    .canPop()) {
+                                                  context.pop();
+                                                }
+                                                context.pushNamedAuth(
+                                                    'Login', context.mounted);
+                                              },
+                                              text: 'Cancel',
+                                              options: FFButtonOptions(
+                                                width: 230.0,
+                                                height: 50.0,
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(
+                                                        0.0, 0.0, 0.0, 0.0),
+                                                iconPadding:
+                                                    EdgeInsetsDirectional
+                                                        .fromSTEB(
+                                                            0.0, 0.0, 0.0, 0.0),
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .error,
+                                                textStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .override(
+                                                          fontFamily:
+                                                              'Lexend Deca',
+                                                          color: Colors.white,
+                                                          fontSize: 16.0,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                        ),
+                                                elevation: 2.0,
+                                                borderSide: BorderSide(
+                                                  color: Colors.transparent,
+                                                  width: 1.0,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(30.0),
+                                              ),
                                             ),
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  ],
+                                      ],
+                                    );
+                                  },
                                 ),
                               ),
                             ],

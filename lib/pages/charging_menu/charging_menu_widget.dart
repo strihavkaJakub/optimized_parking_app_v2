@@ -1,7 +1,12 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/components/battery_limit_slider_with_buttons_widget.dart';
+import '/components/charging_modes_widget.dart';
 import '/components/departure_time_widget.dart';
+import '/components/eco_mode_widget.dart';
+import '/components/regular_mode_widget.dart';
+import '/components/saving_mode_widget.dart';
+import '/components/surplus_mode_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -351,98 +356,6 @@ class _ChargingMenuWidgetState extends State<ChargingMenuWidget> {
                             ),
                           ),
                           Container(
-                            width: 100.0,
-                            height: 100.0,
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context)
-                                  .secondaryBackground,
-                            ),
-                            child: Container(
-                              width: MediaQuery.sizeOf(context).width * 0.677,
-                              height: 216.0,
-                              decoration: BoxDecoration(
-                                color: gridViewChargingSpotsRecord.isEcoOnly
-                                    ? FlutterFlowTheme.of(context).primary
-                                    : FlutterFlowTheme.of(context).error,
-                                boxShadow: [
-                                  BoxShadow(
-                                    blurRadius: 4.0,
-                                    color: Color(0x37000000),
-                                    offset: Offset(0.0, 1.0),
-                                  )
-                                ],
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: InkWell(
-                                splashColor: Colors.transparent,
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: () async {
-                                  if (gridViewChargingSpotsRecord.isEcoOnly) {
-                                    await gridViewChargingSpotsRecord.reference
-                                        .update(createChargingSpotsRecordData(
-                                      isEcoOnly: false,
-                                    ));
-                                  } else {
-                                    await gridViewChargingSpotsRecord.reference
-                                        .update(createChargingSpotsRecordData(
-                                      isEcoOnly: true,
-                                    ));
-                                  }
-                                },
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 16.0, 0.0, 0.0),
-                                      child: Icon(
-                                        Icons.eco,
-                                        color: FlutterFlowTheme.of(context)
-                                            .alternate,
-                                        size: 44.0,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 8.0, 0.0, 0.0),
-                                      child: AutoSizeText(
-                                        'Eco mode: ${gridViewChargingSpotsRecord.isEcoOnly ? 'ON' : 'OFF'}',
-                                        textAlign: TextAlign.center,
-                                        style: FlutterFlowTheme.of(context)
-                                            .titleMedium
-                                            .override(
-                                              fontFamily: 'Outfit',
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .alternate,
-                                              fontSize: 20.0,
-                                            ),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      child: Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            8.0, 4.0, 8.0, 0.0),
-                                        child: Text(
-                                          'Charge only from green energy',
-                                          textAlign: TextAlign.center,
-                                          style: GoogleFonts.getFont(
-                                            'Lexend Deca',
-                                            color: Color(0xB3FFFFFF),
-                                            fontSize: 12.0,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
                             width: MediaQuery.sizeOf(context).width * 0.4,
                             height: 150.0,
                             decoration: BoxDecoration(
@@ -594,7 +507,7 @@ class _ChargingMenuWidgetState extends State<ChargingMenuWidget> {
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           8.0, 4.0, 8.0, 0.0),
                                       child: Text(
-                                        'Force enable/disable charging.\nThis may cause your desired charge to not be accurate',
+                                        'Force enable/disable charging.\nYour vehicle will not be charged if enabled!',
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.getFont(
                                           'Lexend Deca',
@@ -608,6 +521,133 @@ class _ChargingMenuWidgetState extends State<ChargingMenuWidget> {
                               ),
                             ),
                           ),
+                          if (valueOrDefault<bool>(
+                            gridViewChargingSpotsRecord.chargingMode == 1,
+                            true,
+                          ))
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                await showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  enableDrag: false,
+                                  context: context,
+                                  builder: (context) {
+                                    return Padding(
+                                      padding: MediaQuery.viewInsetsOf(context),
+                                      child: Container(
+                                        height:
+                                            MediaQuery.sizeOf(context).height *
+                                                0.5,
+                                        child: ChargingModesWidget(),
+                                      ),
+                                    );
+                                  },
+                                ).then((value) => safeSetState(() {}));
+                              },
+                              child: wrapWithModel(
+                                model: _model.regularModeModel,
+                                updateCallback: () => setState(() {}),
+                                child: RegularModeWidget(),
+                              ),
+                            ),
+                          if (gridViewChargingSpotsRecord.chargingMode == 2)
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                await showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  enableDrag: false,
+                                  context: context,
+                                  builder: (context) {
+                                    return Padding(
+                                      padding: MediaQuery.viewInsetsOf(context),
+                                      child: Container(
+                                        height:
+                                            MediaQuery.sizeOf(context).height *
+                                                0.5,
+                                        child: ChargingModesWidget(),
+                                      ),
+                                    );
+                                  },
+                                ).then((value) => safeSetState(() {}));
+                              },
+                              child: wrapWithModel(
+                                model: _model.ecoModeModel,
+                                updateCallback: () => setState(() {}),
+                                child: EcoModeWidget(),
+                              ),
+                            ),
+                          if (gridViewChargingSpotsRecord.chargingMode == 3)
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                await showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  enableDrag: false,
+                                  context: context,
+                                  builder: (context) {
+                                    return Padding(
+                                      padding: MediaQuery.viewInsetsOf(context),
+                                      child: Container(
+                                        height:
+                                            MediaQuery.sizeOf(context).height *
+                                                0.5,
+                                        child: ChargingModesWidget(),
+                                      ),
+                                    );
+                                  },
+                                ).then((value) => safeSetState(() {}));
+                              },
+                              child: wrapWithModel(
+                                model: _model.surplusModeModel,
+                                updateCallback: () => setState(() {}),
+                                child: SurplusModeWidget(),
+                              ),
+                            ),
+                          if (gridViewChargingSpotsRecord.chargingMode == 4)
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                await showModalBottomSheet(
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  enableDrag: false,
+                                  context: context,
+                                  builder: (context) {
+                                    return Padding(
+                                      padding: MediaQuery.viewInsetsOf(context),
+                                      child: Container(
+                                        height:
+                                            MediaQuery.sizeOf(context).height *
+                                                0.5,
+                                        child: ChargingModesWidget(),
+                                      ),
+                                    );
+                                  },
+                                ).then((value) => safeSetState(() {}));
+                              },
+                              child: wrapWithModel(
+                                model: _model.savingModeModel,
+                                updateCallback: () => setState(() {}),
+                                child: SavingModeWidget(),
+                              ),
+                            ),
                         ],
                       );
                     },

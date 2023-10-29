@@ -228,6 +228,11 @@ class _UnparkThankYouScreenWidgetState extends State<UnparkThankYouScreenWidget>
     super.initState();
     _model = createModel(context, () => UnparkThankYouScreenModel());
 
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      _model.timerController.onStartTimer();
+    });
+
     setupAnimations(
       animationsMap.values.where((anim) =>
           anim.trigger == AnimationTrigger.onActionTrigger ||

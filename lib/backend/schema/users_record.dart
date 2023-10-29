@@ -101,6 +101,11 @@ class UsersRecord extends FirestoreRecord {
   String get phoneNumber => _phoneNumber ?? '';
   bool hasPhoneNumber() => _phoneNumber != null;
 
+  // "parkingLot" field.
+  DocumentReference? _parkingLot;
+  DocumentReference? get parkingLot => _parkingLot;
+  bool hasParkingLot() => _parkingLot != null;
+
   void _initializeFields() {
     _createdTime = snapshotData['created_time'] as DateTime?;
     _email = snapshotData['email'] as String?;
@@ -119,6 +124,7 @@ class UsersRecord extends FirestoreRecord {
     _reservation = snapshotData['reservation'] as DocumentReference?;
     _photoUrl = snapshotData['photo_url'] as String?;
     _phoneNumber = snapshotData['phone_number'] as String?;
+    _parkingLot = snapshotData['parkingLot'] as DocumentReference?;
   }
 
   static CollectionReference get collection =>
@@ -172,6 +178,7 @@ Map<String, dynamic> createUsersRecordData({
   DocumentReference? reservation,
   String? photoUrl,
   String? phoneNumber,
+  DocumentReference? parkingLot,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -192,6 +199,7 @@ Map<String, dynamic> createUsersRecordData({
       'reservation': reservation,
       'photo_url': photoUrl,
       'phone_number': phoneNumber,
+      'parkingLot': parkingLot,
     }.withoutNulls,
   );
 
@@ -219,7 +227,8 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
         e1?.isReservationPricePayed == e2?.isReservationPricePayed &&
         e1?.reservation == e2?.reservation &&
         e1?.photoUrl == e2?.photoUrl &&
-        e1?.phoneNumber == e2?.phoneNumber;
+        e1?.phoneNumber == e2?.phoneNumber &&
+        e1?.parkingLot == e2?.parkingLot;
   }
 
   @override
@@ -240,7 +249,8 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
         e?.isReservationPricePayed,
         e?.reservation,
         e?.photoUrl,
-        e?.phoneNumber
+        e?.phoneNumber,
+        e?.parkingLot
       ]);
 
   @override

@@ -235,7 +235,14 @@ class _HomePageWidgetState extends State<HomePageWidget>
                               ),
                               Text(
                                 valueOrDefault<String>(
-                                  '${functions.calculateRange(columnCarRecord.batterySizeKwh, columnCarRecord.batteryChargePercentage, columnCarRecord.averageConsumptionKWh).toString()} km',
+                                  '${formatNumber(
+                                    functions.calculateRange(
+                                        columnCarRecord.batterySizeKwh,
+                                        columnCarRecord.batteryChargePercentage,
+                                        columnCarRecord.averageConsumptionKWh),
+                                    formatType: FormatType.decimal,
+                                    decimalType: DecimalType.automatic,
+                                  )} km',
                                   '0',
                                 ),
                                 style:
@@ -355,7 +362,9 @@ class _HomePageWidgetState extends State<HomePageWidget>
                                                       columnCarRecord
                                                           .batteryChargePercentage,
                                                       columnCarRecord
-                                                          .desiredChargeAtDeparture) !=
+                                                          .desiredChargeAtDeparture,
+                                                      columnCarRecord
+                                                          .batterySizeKwh) !=
                                                   null &&
                                               functions.calculateChargingTimeUntilDesiredCharge(
                                                       containerChargingSpotsRecord
@@ -363,7 +372,9 @@ class _HomePageWidgetState extends State<HomePageWidget>
                                                       columnCarRecord
                                                           .batteryChargePercentage,
                                                       columnCarRecord
-                                                          .desiredChargeAtDeparture) !=
+                                                          .desiredChargeAtDeparture,
+                                                      columnCarRecord
+                                                          .batterySizeKwh) !=
                                                   '')
                                             Expanded(
                                               child: Padding(
@@ -371,7 +382,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                                                     .fromSTEB(
                                                         8.0, 4.0, 8.0, 0.0),
                                                 child: Text(
-                                                  '${functions.calculateChargingTimeUntilDesiredCharge(containerChargingSpotsRecord.chargingSpeedKW, columnCarRecord.batteryChargePercentage, columnCarRecord.desiredChargeAtDeparture)} until desired charge',
+                                                  '${functions.calculateChargingTimeUntilDesiredCharge(containerChargingSpotsRecord.chargingSpeedKW, columnCarRecord.batteryChargePercentage, columnCarRecord.desiredChargeAtDeparture, columnCarRecord.batterySizeKwh)} until desired charge',
                                                   textAlign: TextAlign.center,
                                                   style: GoogleFonts.getFont(
                                                     'Lexend Deca',
@@ -388,7 +399,14 @@ class _HomePageWidgetState extends State<HomePageWidget>
                                               padding: EdgeInsetsDirectional
                                                   .fromSTEB(8.0, 4.0, 8.0, 0.0),
                                               child: Text(
-                                                '${functions.calculateChargingTimeUntilFull(containerChargingSpotsRecord.chargingSpeedKW, columnCarRecord.batterySizeKwh, columnCarRecord.batteryChargePercentage)} until full',
+                                                'Charging speed: ${formatNumber(
+                                                  containerChargingSpotsRecord
+                                                      .chargingSpeedKW,
+                                                  formatType:
+                                                      FormatType.decimal,
+                                                  decimalType:
+                                                      DecimalType.automatic,
+                                                )} kW',
                                                 textAlign: TextAlign.center,
                                                 style: GoogleFonts.getFont(
                                                   'Lexend Deca',
@@ -462,23 +480,6 @@ class _HomePageWidgetState extends State<HomePageWidget>
                                                                     context)
                                                                 .alternate,
                                                       ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(8.0, 4.0, 8.0, 0.0),
-                                              child: Text(
-                                                'Current Status\n30m until full',
-                                                textAlign: TextAlign.center,
-                                                style: GoogleFonts.getFont(
-                                                  'Lexend Deca',
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .customColor1,
-                                                  fontSize: 12.0,
-                                                ),
-                                              ),
                                             ),
                                           ),
                                         ],

@@ -181,7 +181,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           path: '/paymentComplete',
           requireAuth: true,
           builder: (context, params) => PaymentCompleteWidget(
-            payedPrice: params.getParam('payedPrice', ParamType.String),
+            payedPrice: params.getParam('payedPrice', ParamType.double),
             isParkingPayment:
                 params.getParam('isParkingPayment', ParamType.bool),
           ),

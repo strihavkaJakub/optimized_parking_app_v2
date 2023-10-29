@@ -16,13 +16,12 @@ export 'payment_complete_model.dart';
 class PaymentCompleteWidget extends StatefulWidget {
   const PaymentCompleteWidget({
     Key? key,
-    String? payedPrice,
+    this.payedPrice,
     bool? isParkingPayment,
-  })  : this.payedPrice = payedPrice ?? '0',
-        this.isParkingPayment = isParkingPayment ?? false,
+  })  : this.isParkingPayment = isParkingPayment ?? false,
         super(key: key);
 
-  final String payedPrice;
+  final double? payedPrice;
   final bool isParkingPayment;
 
   @override
@@ -100,7 +99,12 @@ class _PaymentCompleteWidgetState extends State<PaymentCompleteWidget> {
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 0.0),
               child: Text(
-                widget.payedPrice,
+                formatNumber(
+                  widget.payedPrice,
+                  formatType: FormatType.decimal,
+                  decimalType: DecimalType.automatic,
+                  currency: '\$',
+                ),
                 style: GoogleFonts.getFont(
                   'Overpass',
                   color: FlutterFlowTheme.of(context).alternate,
@@ -162,7 +166,12 @@ class _PaymentCompleteWidgetState extends State<PaymentCompleteWidget> {
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 0.0, 0.0, 0.0, 4.0),
                             child: Text(
-                              widget.payedPrice,
+                              formatNumber(
+                                widget.payedPrice,
+                                formatType: FormatType.decimal,
+                                decimalType: DecimalType.automatic,
+                                currency: '\$',
+                              ),
                               style: FlutterFlowTheme.of(context)
                                   .titleSmall
                                   .override(
@@ -291,6 +300,14 @@ class _PaymentCompleteWidgetState extends State<PaymentCompleteWidget> {
                                         );
 
                                         firestoreBatch.update(
+                                            bottomButtonAreaReservationsRecord
+                                                .reference,
+                                            createReservationsRecordData(
+                                              reservedTo: getCurrentTimestamp,
+                                              price: widget.payedPrice,
+                                            ));
+
+                                        firestoreBatch.update(
                                             buttonChargingSpotsRecord.reference,
                                             {
                                               ...createChargingSpotsRecordData(
@@ -305,18 +322,6 @@ class _PaymentCompleteWidgetState extends State<PaymentCompleteWidget> {
                                               ),
                                             });
 
-                                        firestoreBatch.update(
-                                            bottomButtonAreaReservationsRecord
-                                                .reference,
-                                            createReservationsRecordData(
-                                              reservedTo: getCurrentTimestamp,
-                                              price: functions
-                                                  .calculatReservationPrice(
-                                                      bottomButtonAreaReservationsRecord
-                                                          .reservedFrom!,
-                                                      getCurrentTimestamp),
-                                            ));
-
                                         firestoreBatch
                                             .update(currentUserReference!, {
                                           ...createUsersRecordData(
@@ -324,7 +329,8 @@ class _PaymentCompleteWidgetState extends State<PaymentCompleteWidget> {
                                                 .calculatReservationPrice(
                                                     bottomButtonAreaReservationsRecord
                                                         .reservedFrom!,
-                                                    getCurrentTimestamp),
+                                                    getCurrentTimestamp,
+                                                    widget.payedPrice!),
                                           ),
                                           ...mapToFirestore(
                                             {
