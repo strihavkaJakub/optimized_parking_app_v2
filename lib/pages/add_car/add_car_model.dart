@@ -27,6 +27,9 @@ class AddCarModel extends FlutterFlowModel<AddCarWidget> {
   ///  State fields for stateful widgets in this page.
 
   final formKey = GlobalKey<FormState>();
+  // Model for batteryLimitSlider component.
+  late BatteryLimitSliderModel batteryLimitSliderModel;
+  DateTime? datePicked;
   // State field(s) for vehicleRegistraionPlate widget.
   FocusNode? vehicleRegistraionPlateFocusNode;
   TextEditingController? vehicleRegistraionPlateController;
@@ -45,9 +48,6 @@ class AddCarModel extends FlutterFlowModel<AddCarWidget> {
     return null;
   }
 
-  // Model for batteryLimitSlider component.
-  late BatteryLimitSliderModel batteryLimitSliderModel;
-  DateTime? datePicked;
   // State field(s) for batterySize widget.
   FocusNode? batterySizeFocusNode;
   TextEditingController? batterySizeController;
@@ -61,6 +61,9 @@ class AddCarModel extends FlutterFlowModel<AddCarWidget> {
       return 'Requires at least 1 characters.';
     }
 
+    if (!RegExp('^\\d+(\\.\\d+)?\$').hasMatch(val)) {
+      return 'Only numbers or numbers with decimal point';
+    }
     return null;
   }
 
@@ -79,6 +82,9 @@ class AddCarModel extends FlutterFlowModel<AddCarWidget> {
       return 'Requires at least 1 characters.';
     }
 
+    if (!RegExp('^\\d+(\\.\\d+)?\$').hasMatch(val)) {
+      return 'Only numbers or numbers with decimal point';
+    }
     return null;
   }
 
@@ -96,6 +102,9 @@ class AddCarModel extends FlutterFlowModel<AddCarWidget> {
       return 'Requires at least 1 characters.';
     }
 
+    if (!RegExp('^\\d+(\\.\\d+)?\$').hasMatch(val)) {
+      return 'Only numbers or numbers with decimal point';
+    }
     return null;
   }
 
@@ -105,10 +114,10 @@ class AddCarModel extends FlutterFlowModel<AddCarWidget> {
   /// Initialization and disposal methods.
 
   void initState(BuildContext context) {
-    vehicleRegistraionPlateControllerValidator =
-        _vehicleRegistraionPlateControllerValidator;
     batteryLimitSliderModel =
         createModel(context, () => BatteryLimitSliderModel());
+    vehicleRegistraionPlateControllerValidator =
+        _vehicleRegistraionPlateControllerValidator;
     batterySizeControllerValidator = _batterySizeControllerValidator;
     averageConsumptionControllerValidator =
         _averageConsumptionControllerValidator;
@@ -116,10 +125,10 @@ class AddCarModel extends FlutterFlowModel<AddCarWidget> {
   }
 
   void dispose() {
+    batteryLimitSliderModel.dispose();
     vehicleRegistraionPlateFocusNode?.dispose();
     vehicleRegistraionPlateController?.dispose();
 
-    batteryLimitSliderModel.dispose();
     batterySizeFocusNode?.dispose();
     batterySizeController?.dispose();
 

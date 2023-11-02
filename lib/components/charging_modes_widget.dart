@@ -67,7 +67,10 @@ class _ChargingModesWidgetState extends State<ChargingModesWidget> {
               child: GridView(
                 padding: EdgeInsets.zero,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                  crossAxisCount: MediaQuery.sizeOf(context).width >
+                          MediaQuery.sizeOf(context).height
+                      ? 5
+                      : 2,
                   crossAxisSpacing: 10.0,
                   mainAxisSpacing: 10.0,
                   childAspectRatio: 1.0,

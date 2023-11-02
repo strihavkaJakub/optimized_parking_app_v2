@@ -71,21 +71,6 @@ class UsersRecord extends FirestoreRecord {
   double get reservationPrice => _reservationPrice ?? 0.0;
   bool hasReservationPrice() => _reservationPrice != null;
 
-  // "isParkingPricePayed" field.
-  bool? _isParkingPricePayed;
-  bool get isParkingPricePayed => _isParkingPricePayed ?? false;
-  bool hasIsParkingPricePayed() => _isParkingPricePayed != null;
-
-  // "isChargingPricePayed" field.
-  bool? _isChargingPricePayed;
-  bool get isChargingPricePayed => _isChargingPricePayed ?? false;
-  bool hasIsChargingPricePayed() => _isChargingPricePayed != null;
-
-  // "isReservationPricePayed" field.
-  bool? _isReservationPricePayed;
-  bool get isReservationPricePayed => _isReservationPricePayed ?? false;
-  bool hasIsReservationPricePayed() => _isReservationPricePayed != null;
-
   // "reservation" field.
   DocumentReference? _reservation;
   DocumentReference? get reservation => _reservation;
@@ -118,9 +103,6 @@ class UsersRecord extends FirestoreRecord {
     _parkingPrice = castToType<double>(snapshotData['parkingPrice']);
     _chargingPrice = castToType<double>(snapshotData['chargingPrice']);
     _reservationPrice = castToType<double>(snapshotData['reservationPrice']);
-    _isParkingPricePayed = snapshotData['isParkingPricePayed'] as bool?;
-    _isChargingPricePayed = snapshotData['isChargingPricePayed'] as bool?;
-    _isReservationPricePayed = snapshotData['isReservationPricePayed'] as bool?;
     _reservation = snapshotData['reservation'] as DocumentReference?;
     _photoUrl = snapshotData['photo_url'] as String?;
     _phoneNumber = snapshotData['phone_number'] as String?;
@@ -172,9 +154,6 @@ Map<String, dynamic> createUsersRecordData({
   double? parkingPrice,
   double? chargingPrice,
   double? reservationPrice,
-  bool? isParkingPricePayed,
-  bool? isChargingPricePayed,
-  bool? isReservationPricePayed,
   DocumentReference? reservation,
   String? photoUrl,
   String? phoneNumber,
@@ -193,9 +172,6 @@ Map<String, dynamic> createUsersRecordData({
       'parkingPrice': parkingPrice,
       'chargingPrice': chargingPrice,
       'reservationPrice': reservationPrice,
-      'isParkingPricePayed': isParkingPricePayed,
-      'isChargingPricePayed': isChargingPricePayed,
-      'isReservationPricePayed': isReservationPricePayed,
       'reservation': reservation,
       'photo_url': photoUrl,
       'phone_number': phoneNumber,
@@ -222,9 +198,6 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
         e1?.parkingPrice == e2?.parkingPrice &&
         e1?.chargingPrice == e2?.chargingPrice &&
         e1?.reservationPrice == e2?.reservationPrice &&
-        e1?.isParkingPricePayed == e2?.isParkingPricePayed &&
-        e1?.isChargingPricePayed == e2?.isChargingPricePayed &&
-        e1?.isReservationPricePayed == e2?.isReservationPricePayed &&
         e1?.reservation == e2?.reservation &&
         e1?.photoUrl == e2?.photoUrl &&
         e1?.phoneNumber == e2?.phoneNumber &&
@@ -244,9 +217,6 @@ class UsersRecordDocumentEquality implements Equality<UsersRecord> {
         e?.parkingPrice,
         e?.chargingPrice,
         e?.reservationPrice,
-        e?.isParkingPricePayed,
-        e?.isChargingPricePayed,
-        e?.isReservationPricePayed,
         e?.reservation,
         e?.photoUrl,
         e?.phoneNumber,

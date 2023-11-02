@@ -1,7 +1,8 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
+import '/backend/stripe/payment_manager.dart';
 import '/components/charging_progress_bar_component_widget.dart';
-import '/components/payment_modal/payment_modal_widget.dart';
+import '/components/loading_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -164,14 +165,18 @@ class _HomePageWidgetState extends State<HomePageWidget>
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          columnCarRecord.vehicleRegistrationPlate,
-                          style: FlutterFlowTheme.of(context)
-                              .displaySmall
-                              .override(
-                                fontFamily: 'Outfit',
-                                color: FlutterFlowTheme.of(context).dark400,
-                              ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              16.0, 0.0, 0.0, 0.0),
+                          child: Text(
+                            columnCarRecord.vehicleRegistrationPlate,
+                            style: FlutterFlowTheme.of(context)
+                                .displaySmall
+                                .override(
+                                  fontFamily: 'Outfit',
+                                  color: FlutterFlowTheme.of(context).dark400,
+                                ),
+                          ),
                         ),
                       ],
                     ),
@@ -179,7 +184,7 @@ class _HomePageWidgetState extends State<HomePageWidget>
                       'assets/images/shutterstock_678961774.png',
                       width: MediaQuery.sizeOf(context).width * 1.0,
                       height: 240.0,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fitHeight,
                     ).animateOnPageLoad(
                         animationsMap['imageOnPageLoadAnimation']!),
                     wrapWithModel(
@@ -592,118 +597,286 @@ class _HomePageWidgetState extends State<HomePageWidget>
                               ],
                               borderRadius: BorderRadius.circular(8.0),
                             ),
-                            child: InkWell(
-                              splashColor: Colors.transparent,
-                              focusColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () async {
-                                await columnCarRecord.reference
-                                    .update(createCarRecordData(
-                                  parkingPrice: functions.calculateParkingPrice(
-                                      columnCarRecord.parkedFrom!,
-                                      getCurrentTimestamp),
-                                ));
+                            child: StreamBuilder<ParkingLotRecord>(
+                              stream: ParkingLotRecord.getDocument(
+                                  currentUserDocument!.parkingLot!),
+                              builder: (context, snapshot) {
+                                // Customize what your widget looks like when it's loading.
+                                if (!snapshot.hasData) {
+                                  return Center(
+                                    child: SizedBox(
+                                      width: 50.0,
+                                      height: 50.0,
+                                      child: SpinKitCubeGrid(
+                                        color: FlutterFlowTheme.of(context)
+                                            .primary,
+                                        size: 50.0,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                final columnParkingLotRecord = snapshot.data!;
+                                return InkWell(
+                                  splashColor: Colors.transparent,
+                                  focusColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  onTap: () async {
+                                    showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      backgroundColor:
+                                          FlutterFlowTheme.of(context)
+                                              .primaryBackground,
+                                      isDismissible: false,
+                                      enableDrag: false,
+                                      context: context,
+                                      builder: (context) {
+                                        return Padding(
+                                          padding:
+                                              MediaQuery.viewInsetsOf(context),
+                                          child: Container(
+                                            height: MediaQuery.sizeOf(context)
+                                                    .height *
+                                                0.8,
+                                            child: LoadingWidget(),
+                                          ),
+                                        );
+                                      },
+                                    ).then((value) => safeSetState(() {}));
 
-                                await currentUserReference!
-                                    .update(createUsersRecordData(
-                                  parkingPrice: functions.calculateParkingPrice(
-                                      columnCarRecord.parkedFrom!,
-                                      getCurrentTimestamp),
-                                ));
-                                await showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  backgroundColor: FlutterFlowTheme.of(context)
-                                      .primaryBackground,
-                                  useSafeArea: true,
-                                  context: context,
-                                  builder: (context) {
-                                    return Padding(
-                                      padding: MediaQuery.viewInsetsOf(context),
-                                      child: Container(
-                                        height: 450.0,
-                                        child: PaymentModalWidget(
-                                          isParkingPayment: true,
-                                          paymentSum:
-                                              functions.calculateParkingPrice(
-                                                  columnCarRecord.parkedFrom!,
-                                                  getCurrentTimestamp),
-                                        ),
-                                      ),
+                                    await currentUserReference!
+                                        .update(createUsersRecordData(
+                                      parkingPrice:
+                                          functions.calculateParkingPrice(
+                                              columnCarRecord.parkedFrom!,
+                                              getCurrentTimestamp,
+                                              columnParkingLotRecord
+                                                  .parkingPricePerMinute),
+                                    ));
+                                    final paymentResponse =
+                                        await processStripePayment(
+                                      context,
+                                      amount: functions.convertPriceForPayment(
+                                          functions.calculateTotalPrice(
+                                              valueOrDefault(
+                                                  currentUserDocument
+                                                      ?.reservationPrice,
+                                                  0.0),
+                                              valueOrDefault(
+                                                  currentUserDocument
+                                                      ?.chargingPrice,
+                                                  0.0),
+                                              columnCarRecord.parkingPrice)),
+                                      currency: 'EUR',
+                                      customerEmail: currentUserEmail,
+                                      allowGooglePay: false,
+                                      allowApplePay: false,
                                     );
+                                    if (paymentResponse.paymentId == null &&
+                                        paymentResponse.errorMessage != null) {
+                                      showSnackbar(
+                                        context,
+                                        'Error: ${paymentResponse.errorMessage}',
+                                      );
+                                    }
+                                    _model.paymentId =
+                                        paymentResponse.paymentId ?? '';
+
+                                    if (_model.paymentId != null &&
+                                        _model.paymentId != '') {
+                                      var paymentsRecordReference =
+                                          PaymentsRecord.collection.doc();
+                                      await paymentsRecordReference
+                                          .set(createPaymentsRecordData(
+                                        paymentUser: currentUserReference,
+                                        paymentDate: getCurrentTimestamp,
+                                        paymentStatus: 'Complete',
+                                        paymentAmount:
+                                            functions.calculateTotalPrice(
+                                                valueOrDefault(
+                                                    currentUserDocument
+                                                        ?.reservationPrice,
+                                                    0.0),
+                                                valueOrDefault(
+                                                    currentUserDocument
+                                                        ?.chargingPrice,
+                                                    0.0),
+                                                valueOrDefault(
+                                                    currentUserDocument
+                                                        ?.parkingPrice,
+                                                    0.0)),
+                                        paymentId: _model.paymentId,
+                                        paymentProduct:
+                                            columnCarRecord.reference,
+                                      ));
+                                      _model.outputPayment =
+                                          PaymentsRecord.getDocumentFromData(
+                                              createPaymentsRecordData(
+                                                paymentUser:
+                                                    currentUserReference,
+                                                paymentDate:
+                                                    getCurrentTimestamp,
+                                                paymentStatus: 'Complete',
+                                                paymentAmount: functions
+                                                    .calculateTotalPrice(
+                                                        valueOrDefault(
+                                                            currentUserDocument
+                                                                ?.reservationPrice,
+                                                            0.0),
+                                                        valueOrDefault(
+                                                            currentUserDocument
+                                                                ?.chargingPrice,
+                                                            0.0),
+                                                        valueOrDefault(
+                                                            currentUserDocument
+                                                                ?.parkingPrice,
+                                                            0.0)),
+                                                paymentId: _model.paymentId,
+                                                paymentProduct:
+                                                    columnCarRecord.reference,
+                                              ),
+                                              paymentsRecordReference);
+
+                                      await columnCarRecord.reference
+                                          .update(createCarRecordData(
+                                        carPayment:
+                                            _model.outputPayment?.reference,
+                                        parkingPrice: valueOrDefault(
+                                            currentUserDocument?.parkingPrice,
+                                            0.0),
+                                      ));
+
+                                      context.pushNamed(
+                                        'paymentComplete',
+                                        queryParameters: {
+                                          'payedPrice': serializeParam(
+                                            functions.calculateTotalPrice(
+                                                valueOrDefault(
+                                                    currentUserDocument
+                                                        ?.reservationPrice,
+                                                    0.0),
+                                                valueOrDefault(
+                                                    currentUserDocument
+                                                        ?.chargingPrice,
+                                                    0.0),
+                                                columnCarRecord.parkingPrice),
+                                            ParamType.double,
+                                          ),
+                                          'isParkingPayment': serializeParam(
+                                            true,
+                                            ParamType.bool,
+                                          ),
+                                        }.withoutNulls,
+                                      );
+                                    } else {
+                                      Navigator.pop(context);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Error has occured. Please try again.',
+                                            style: TextStyle(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryText,
+                                            ),
+                                          ),
+                                          duration:
+                                              Duration(milliseconds: 4000),
+                                          backgroundColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .secondary,
+                                        ),
+                                      );
+                                    }
+
+                                    setState(() {});
                                   },
-                                ).then((value) => safeSetState(() {}));
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0.0, 16.0, 0.0, 0.0),
+                                        child: Icon(
+                                          Icons.exit_to_app,
+                                          color: FlutterFlowTheme.of(context)
+                                              .alternate,
+                                          size: 44.0,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0.0, 8.0, 0.0, 0.0),
+                                        child: AutoSizeText(
+                                          'Pay and Exit',
+                                          textAlign: TextAlign.center,
+                                          style: FlutterFlowTheme.of(context)
+                                              .titleMedium
+                                              .override(
+                                                fontFamily: 'Outfit',
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .alternate,
+                                              ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  8.0, 4.0, 8.0, 0.0),
+                                          child: Text(
+                                            'End your parking',
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.getFont(
+                                              'Lexend Deca',
+                                              color: Color(0xB3FFFFFF),
+                                              fontSize: 12.0,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  8.0, 4.0, 8.0, 0.0),
+                                          child: Text(
+                                            formatNumber(
+                                              functions.calculateTotalPrice(
+                                                  valueOrDefault(
+                                                      currentUserDocument
+                                                          ?.reservationPrice,
+                                                      0.0),
+                                                  valueOrDefault(
+                                                      currentUserDocument
+                                                          ?.chargingPrice,
+                                                      0.0),
+                                                  functions.calculateParkingPrice(
+                                                      columnCarRecord
+                                                          .parkedFrom!,
+                                                      getCurrentTimestamp,
+                                                      columnParkingLotRecord
+                                                          .parkingPricePerMinute)),
+                                              formatType: FormatType.decimal,
+                                              decimalType:
+                                                  DecimalType.automatic,
+                                              currency: '\$',
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.getFont(
+                                              'Lexend Deca',
+                                              color: Color(0xB3FFFFFF),
+                                              fontSize: 12.0,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
                               },
-                              child: Column(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 16.0, 0.0, 0.0),
-                                    child: Icon(
-                                      Icons.exit_to_app,
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                      size: 44.0,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        0.0, 8.0, 0.0, 0.0),
-                                    child: AutoSizeText(
-                                      'Pay and Exit',
-                                      textAlign: TextAlign.center,
-                                      style: FlutterFlowTheme.of(context)
-                                          .titleMedium
-                                          .override(
-                                            fontFamily: 'Outfit',
-                                            color: FlutterFlowTheme.of(context)
-                                                .alternate,
-                                          ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          8.0, 4.0, 8.0, 0.0),
-                                      child: Text(
-                                        'End your parking',
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.getFont(
-                                          'Lexend Deca',
-                                          color: Color(0xB3FFFFFF),
-                                          fontSize: 12.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          8.0, 4.0, 8.0, 0.0),
-                                      child: Text(
-                                        valueOrDefault<String>(
-                                          formatNumber(
-                                            functions.calculateParkingPrice(
-                                                columnCarRecord.parkedFrom!,
-                                                getCurrentTimestamp),
-                                            formatType: FormatType.decimal,
-                                            decimalType: DecimalType.automatic,
-                                            currency: '\$',
-                                          ),
-                                          '0',
-                                        ),
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.getFont(
-                                          'Lexend Deca',
-                                          color: Color(0xB3FFFFFF),
-                                          fontSize: 12.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ),
                           ),
                         ],

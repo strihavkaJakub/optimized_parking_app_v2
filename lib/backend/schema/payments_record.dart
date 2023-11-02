@@ -41,12 +41,18 @@ class PaymentsRecord extends FirestoreRecord {
   DocumentReference? get paymentProduct => _paymentProduct;
   bool hasPaymentProduct() => _paymentProduct != null;
 
+  // "paymentId" field.
+  String? _paymentId;
+  String get paymentId => _paymentId ?? '';
+  bool hasPaymentId() => _paymentId != null;
+
   void _initializeFields() {
     _paymentUser = snapshotData['paymentUser'] as DocumentReference?;
     _paymentDate = snapshotData['paymentDate'] as DateTime?;
     _paymentStatus = snapshotData['paymentStatus'] as String?;
     _paymentAmount = castToType<double>(snapshotData['payment_amount']);
     _paymentProduct = snapshotData['paymentProduct'] as DocumentReference?;
+    _paymentId = snapshotData['paymentId'] as String?;
   }
 
   static CollectionReference get collection =>
@@ -89,6 +95,7 @@ Map<String, dynamic> createPaymentsRecordData({
   String? paymentStatus,
   double? paymentAmount,
   DocumentReference? paymentProduct,
+  String? paymentId,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -97,6 +104,7 @@ Map<String, dynamic> createPaymentsRecordData({
       'paymentStatus': paymentStatus,
       'payment_amount': paymentAmount,
       'paymentProduct': paymentProduct,
+      'paymentId': paymentId,
     }.withoutNulls,
   );
 
@@ -112,7 +120,8 @@ class PaymentsRecordDocumentEquality implements Equality<PaymentsRecord> {
         e1?.paymentDate == e2?.paymentDate &&
         e1?.paymentStatus == e2?.paymentStatus &&
         e1?.paymentAmount == e2?.paymentAmount &&
-        e1?.paymentProduct == e2?.paymentProduct;
+        e1?.paymentProduct == e2?.paymentProduct &&
+        e1?.paymentId == e2?.paymentId;
   }
 
   @override
@@ -121,7 +130,8 @@ class PaymentsRecordDocumentEquality implements Equality<PaymentsRecord> {
         e?.paymentDate,
         e?.paymentStatus,
         e?.paymentAmount,
-        e?.paymentProduct
+        e?.paymentProduct,
+        e?.paymentId
       ]);
 
   @override

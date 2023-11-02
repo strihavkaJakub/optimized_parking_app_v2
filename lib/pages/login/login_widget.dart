@@ -422,7 +422,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         displayName: 'Guest user',
                       ));
 
-                      context.goNamedAuth('HomePage', context.mounted);
+                      context.goNamedAuth('onboarding', context.mounted);
                     },
                     text: 'Continue as Guest',
                     icon: Icon(

@@ -4,6 +4,7 @@ import '/components/empty_payments/empty_payments_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/custom_functions.dart' as functions;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -87,28 +88,60 @@ class _PaymentsWidgetState extends State<PaymentsWidget> {
                       child: Row(
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Charging cost',
-                                style: FlutterFlowTheme.of(context).bodySmall,
-                              ),
-                              Text(
-                                valueOrDefault<String>(
-                                  formatNumber(
-                                    paymentsCarRecord.parkingPrice,
-                                    formatType: FormatType.decimal,
-                                    decimalType: DecimalType.automatic,
-                                    currency: '\$',
+                          StreamBuilder<ParkingLotRecord>(
+                            stream: ParkingLotRecord.getDocument(
+                                currentUserDocument!.parkingLot!),
+                            builder: (context, snapshot) {
+                              // Customize what your widget looks like when it's loading.
+                              if (!snapshot.hasData) {
+                                return Center(
+                                  child: SizedBox(
+                                    width: 50.0,
+                                    height: 50.0,
+                                    child: SpinKitCubeGrid(
+                                      color:
+                                          FlutterFlowTheme.of(context).primary,
+                                      size: 50.0,
+                                    ),
                                   ),
-                                  '0',
-                                ),
-                                style:
-                                    FlutterFlowTheme.of(context).displaySmall,
-                              ),
-                            ],
+                                );
+                              }
+                              final carPaymentParkingLotRecord = snapshot.data!;
+                              return Column(
+                                mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Unpaid price',
+                                    style:
+                                        FlutterFlowTheme.of(context).bodySmall,
+                                  ),
+                                  Text(
+                                    formatNumber(
+                                      functions.calculateTotalPrice(
+                                          valueOrDefault(
+                                              currentUserDocument
+                                                  ?.reservationPrice,
+                                              0.0),
+                                          valueOrDefault(
+                                              currentUserDocument
+                                                  ?.chargingPrice,
+                                              0.0),
+                                          functions.calculateParkingPrice(
+                                              paymentsCarRecord.parkedFrom!,
+                                              getCurrentTimestamp,
+                                              carPaymentParkingLotRecord
+                                                  .parkingPricePerMinute)),
+                                      formatType: FormatType.decimal,
+                                      decimalType: DecimalType.automatic,
+                                      currency: '\$',
+                                    ),
+                                    style: FlutterFlowTheme.of(context)
+                                        .displaySmall,
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),

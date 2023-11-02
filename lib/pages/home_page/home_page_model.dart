@@ -1,7 +1,8 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
+import '/backend/stripe/payment_manager.dart';
 import '/components/charging_progress_bar_component_widget.dart';
-import '/components/payment_modal/payment_modal_widget.dart';
+import '/components/loading_widget.dart';
 import '/flutter_flow/flutter_flow_animations.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -29,6 +30,10 @@ class HomePageModel extends FlutterFlowModel<HomePageWidget> {
   InstantTimer? parkingPriceTimer;
   // Model for chargingProgressBarComponent component.
   late ChargingProgressBarComponentModel chargingProgressBarComponentModel;
+  // Stores action output result for [Stripe Payment] action in Column widget.
+  String? paymentId;
+  // Stores action output result for [Backend Call - Create Document] action in Column widget.
+  PaymentsRecord? outputPayment;
 
   /// Initialization and disposal methods.
 

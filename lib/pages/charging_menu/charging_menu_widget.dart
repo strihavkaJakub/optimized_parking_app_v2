@@ -137,7 +137,10 @@ class _ChargingMenuWidgetState extends State<ChargingMenuWidget> {
                       return GridView(
                         padding: EdgeInsets.zero,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
+                          crossAxisCount: MediaQuery.sizeOf(context).width <
+                                  MediaQuery.sizeOf(context).height
+                              ? 2
+                              : 5,
                           crossAxisSpacing: 10.0,
                           mainAxisSpacing: 10.0,
                           childAspectRatio: 1.0,
@@ -410,7 +413,9 @@ class _ChargingMenuWidgetState extends State<ChargingMenuWidget> {
                                     padding: EdgeInsetsDirectional.fromSTEB(
                                         0.0, 8.0, 0.0, 0.0),
                                     child: AutoSizeText(
-                                      'Enable V2G',
+                                      gridViewChargingSpotsRecord.isV2GActive
+                                          ? 'Enabled V2G'
+                                          : 'Disabled V2G',
                                       textAlign: TextAlign.center,
                                       style: FlutterFlowTheme.of(context)
                                           .titleMedium
@@ -476,6 +481,7 @@ class _ChargingMenuWidgetState extends State<ChargingMenuWidget> {
                               },
                               child: Column(
                                 mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(

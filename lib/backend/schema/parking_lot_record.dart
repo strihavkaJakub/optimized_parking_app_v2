@@ -41,6 +41,11 @@ class ParkingLotRecord extends FirestoreRecord {
   double get reservationPricePerMinute => _reservationPricePerMinute ?? 0.0;
   bool hasReservationPricePerMinute() => _reservationPricePerMinute != null;
 
+  // "parkingPricePerMinute" field.
+  double? _parkingPricePerMinute;
+  double get parkingPricePerMinute => _parkingPricePerMinute ?? 0.0;
+  bool hasParkingPricePerMinute() => _parkingPricePerMinute != null;
+
   void _initializeFields() {
     _availablePowerKwh = castToType<double>(snapshotData['availablePowerKwh']);
     _latLngPosition = snapshotData['latLngPosition'] as LatLng?;
@@ -48,6 +53,8 @@ class ParkingLotRecord extends FirestoreRecord {
     _maximumPowerKwh = castToType<double>(snapshotData['maximumPowerKwh']);
     _reservationPricePerMinute =
         castToType<double>(snapshotData['reservationPricePerMinute']);
+    _parkingPricePerMinute =
+        castToType<double>(snapshotData['parkingPricePerMinute']);
   }
 
   static CollectionReference get collection =>
@@ -89,6 +96,7 @@ Map<String, dynamic> createParkingLotRecordData({
   LatLng? latLngPosition,
   double? maximumPowerKwh,
   double? reservationPricePerMinute,
+  double? parkingPricePerMinute,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -96,6 +104,7 @@ Map<String, dynamic> createParkingLotRecordData({
       'latLngPosition': latLngPosition,
       'maximumPowerKwh': maximumPowerKwh,
       'reservationPricePerMinute': reservationPricePerMinute,
+      'parkingPricePerMinute': parkingPricePerMinute,
     }.withoutNulls,
   );
 
@@ -112,7 +121,8 @@ class ParkingLotRecordDocumentEquality implements Equality<ParkingLotRecord> {
         e1?.latLngPosition == e2?.latLngPosition &&
         listEquality.equals(e1?.chargingSlots, e2?.chargingSlots) &&
         e1?.maximumPowerKwh == e2?.maximumPowerKwh &&
-        e1?.reservationPricePerMinute == e2?.reservationPricePerMinute;
+        e1?.reservationPricePerMinute == e2?.reservationPricePerMinute &&
+        e1?.parkingPricePerMinute == e2?.parkingPricePerMinute;
   }
 
   @override
@@ -121,7 +131,8 @@ class ParkingLotRecordDocumentEquality implements Equality<ParkingLotRecord> {
         e?.latLngPosition,
         e?.chargingSlots,
         e?.maximumPowerKwh,
-        e?.reservationPricePerMinute
+        e?.reservationPricePerMinute,
+        e?.parkingPricePerMinute
       ]);
 
   @override

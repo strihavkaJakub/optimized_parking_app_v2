@@ -53,7 +53,8 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
-
+	<key>NSCameraUsageDescription</key>
+    <string>In order to take a picture or video, this app requires permission to access the camera.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
     <string>In order to navigate you to the parking tower, this app requires permission to access the location.</string>
 	<key>PermissionGroupNotification</key>

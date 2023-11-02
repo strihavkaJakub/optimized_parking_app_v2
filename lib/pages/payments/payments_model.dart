@@ -4,6 +4,7 @@ import '/components/empty_payments/empty_payments_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/custom_functions.dart' as functions;
 import 'dart:async';
 import 'payments_widget.dart' show PaymentsWidget;
 import 'package:flutter/material.dart';

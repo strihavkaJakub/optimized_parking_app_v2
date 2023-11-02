@@ -149,7 +149,7 @@ class _ReserveCarWidgetState extends State<ReserveCarWidget> {
                             padding: EdgeInsetsDirectional.fromSTEB(
                                 20.0, 0.0, 20.0, 16.0),
                             child: Text(
-                              'Choose a parking spot to reserve it. You will be charged \$0.01 for every minute.',
+                              'Reserve a parking spot. Reservation fee is \$0.5. You will be charged \$0.01 for every minute above 50 minutes.',
                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(

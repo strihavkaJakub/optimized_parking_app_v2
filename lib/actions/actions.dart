@@ -9,7 +9,6 @@ Future clearParkingSpot(BuildContext context) async {
   await currentUserDocument!.chargingSpot!.update(createChargingSpotsRecordData(
     reservation: null,
     isOccupied: false,
-    isEcoOnly: false,
     chargingMode: 1,
     car: null,
     isCharging: false,

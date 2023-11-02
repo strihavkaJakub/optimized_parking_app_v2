@@ -41,11 +41,6 @@ class CarRecord extends FirestoreRecord {
   double get averageConsumptionKWh => _averageConsumptionKWh ?? 0.0;
   bool hasAverageConsumptionKWh() => _averageConsumptionKWh != null;
 
-  // "payment" field.
-  DocumentReference? _payment;
-  DocumentReference? get payment => _payment;
-  bool hasPayment() => _payment != null;
-
   // "carUser" field.
   DocumentReference? _carUser;
   DocumentReference? get carUser => _carUser;
@@ -95,7 +90,6 @@ class CarRecord extends FirestoreRecord {
         snapshotData['vehicleRegistrationPlate'] as String?;
     _averageConsumptionKWh =
         castToType<double>(snapshotData['averageConsumptionKWh']);
-    _payment = snapshotData['payment'] as DocumentReference?;
     _carUser = snapshotData['carUser'] as DocumentReference?;
     _carPayment = snapshotData['carPayment'] as DocumentReference?;
     _carChargingSpot = snapshotData['carChargingSpot'] as DocumentReference?;
@@ -147,7 +141,6 @@ Map<String, dynamic> createCarRecordData({
   double? availableRange,
   String? vehicleRegistrationPlate,
   double? averageConsumptionKWh,
-  DocumentReference? payment,
   DocumentReference? carUser,
   DocumentReference? carPayment,
   DocumentReference? carChargingSpot,
@@ -164,7 +157,6 @@ Map<String, dynamic> createCarRecordData({
       'availableRange': availableRange,
       'vehicleRegistrationPlate': vehicleRegistrationPlate,
       'averageConsumptionKWh': averageConsumptionKWh,
-      'payment': payment,
       'carUser': carUser,
       'carPayment': carPayment,
       'carChargingSpot': carChargingSpot,
@@ -189,7 +181,6 @@ class CarRecordDocumentEquality implements Equality<CarRecord> {
         e1?.availableRange == e2?.availableRange &&
         e1?.vehicleRegistrationPlate == e2?.vehicleRegistrationPlate &&
         e1?.averageConsumptionKWh == e2?.averageConsumptionKWh &&
-        e1?.payment == e2?.payment &&
         e1?.carUser == e2?.carUser &&
         e1?.carPayment == e2?.carPayment &&
         e1?.carChargingSpot == e2?.carChargingSpot &&
@@ -207,7 +198,6 @@ class CarRecordDocumentEquality implements Equality<CarRecord> {
         e?.availableRange,
         e?.vehicleRegistrationPlate,
         e?.averageConsumptionKWh,
-        e?.payment,
         e?.carUser,
         e?.carPayment,
         e?.carChargingSpot,

@@ -23,12 +23,13 @@ double calculateRange(
 double calculateParkingPrice(
   DateTime parkingFrom,
   DateTime parkingTo,
+  double parkingPricePerMinute,
 ) {
   double price =
       (parkingTo.millisecondsSinceEpoch - parkingFrom.millisecondsSinceEpoch) /
           1000 /
           60 *
-          0.03333333333333;
+          parkingPricePerMinute;
   double roundedPrice = double.parse((price).toStringAsFixed(2));
   return roundedPrice;
 }
@@ -66,6 +67,7 @@ double calculatReservationPrice(
       60 *
       reservationPricePerMinute;
   double roundedPrice = double.parse((price).toStringAsFixed(2));
+  if (roundedPrice < 0.5) return 0.50;
   return roundedPrice;
 }
 
@@ -88,4 +90,33 @@ String getTimeStringFromMinutes(double value) {
   final int hour = value ~/ 60;
   final int minutes = (value % 60).floor();
   return '${hour.toString().padLeft(2, "0")}h ${minutes.toString().padLeft(2, "0")}m';
+}
+
+int convertPriceForPayment(double paymentSum) {
+  return (paymentSum * 100).toInt();
+}
+
+double calculateTotalPrice(
+  double? reservationPrice,
+  double? chargingPrice,
+  double parkingPrice,
+) {
+  double total =
+      ((reservationPrice ?? 0) + (chargingPrice ?? 0) + parkingPrice);
+  if (total < 0.5)
+    return 0.5;
+  else
+    return ((reservationPrice ?? 0) + (chargingPrice ?? 0) + parkingPrice);
+}
+
+double stringToDouble(String string) {
+  double tries;
+
+  try {
+    tries = double.parse(string);
+  } catch (err) {
+    return 0;
+  }
+
+  return tries;
 }

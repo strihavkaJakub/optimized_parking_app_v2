@@ -26,11 +26,6 @@ class ChargingSpotsRecord extends FirestoreRecord {
   int get chargingMode => _chargingMode ?? 0;
   bool hasChargingMode() => _chargingMode != null;
 
-  // "isEcoOnly" field.
-  bool? _isEcoOnly;
-  bool get isEcoOnly => _isEcoOnly ?? false;
-  bool hasIsEcoOnly() => _isEcoOnly != null;
-
   // "chargingSpeedKW" field.
   double? _chargingSpeedKW;
   double get chargingSpeedKW => _chargingSpeedKW ?? 0.0;
@@ -79,7 +74,6 @@ class ChargingSpotsRecord extends FirestoreRecord {
   void _initializeFields() {
     _parkingSpotNumber = castToType<int>(snapshotData['parkingSpotNumber']);
     _chargingMode = castToType<int>(snapshotData['chargingMode']);
-    _isEcoOnly = snapshotData['isEcoOnly'] as bool?;
     _chargingSpeedKW = castToType<double>(snapshotData['chargingSpeedKW']);
     _car = snapshotData['car'] as DocumentReference?;
     _isOccupied = snapshotData['isOccupied'] as bool?;
@@ -128,7 +122,6 @@ class ChargingSpotsRecord extends FirestoreRecord {
 Map<String, dynamic> createChargingSpotsRecordData({
   int? parkingSpotNumber,
   int? chargingMode,
-  bool? isEcoOnly,
   double? chargingSpeedKW,
   DocumentReference? car,
   bool? isOccupied,
@@ -143,7 +136,6 @@ Map<String, dynamic> createChargingSpotsRecordData({
     <String, dynamic>{
       'parkingSpotNumber': parkingSpotNumber,
       'chargingMode': chargingMode,
-      'isEcoOnly': isEcoOnly,
       'chargingSpeedKW': chargingSpeedKW,
       'car': car,
       'isOccupied': isOccupied,
@@ -167,7 +159,6 @@ class ChargingSpotsRecordDocumentEquality
   bool equals(ChargingSpotsRecord? e1, ChargingSpotsRecord? e2) {
     return e1?.parkingSpotNumber == e2?.parkingSpotNumber &&
         e1?.chargingMode == e2?.chargingMode &&
-        e1?.isEcoOnly == e2?.isEcoOnly &&
         e1?.chargingSpeedKW == e2?.chargingSpeedKW &&
         e1?.car == e2?.car &&
         e1?.isOccupied == e2?.isOccupied &&
@@ -183,7 +174,6 @@ class ChargingSpotsRecordDocumentEquality
   int hash(ChargingSpotsRecord? e) => const ListEquality().hash([
         e?.parkingSpotNumber,
         e?.chargingMode,
-        e?.isEcoOnly,
         e?.chargingSpeedKW,
         e?.car,
         e?.isOccupied,

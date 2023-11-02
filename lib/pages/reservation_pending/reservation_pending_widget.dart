@@ -1,6 +1,6 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
-import '/components/payment_modal/payment_modal_widget.dart';
+import '/backend/stripe/payment_manager.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -313,7 +313,31 @@ class _ReservationPendingWidgetState extends State<ReservationPendingWidget> {
                                                       0.0, 24.0, 0.0, 0.0),
                                               child: FFButtonWidget(
                                                 onPressed: () async {
-                                                  context.pushNamed(
+                                                  await currentUserReference!
+                                                      .update(
+                                                          createUsersRecordData(
+                                                    reservationPrice:
+                                                        functions.calculatReservationPrice(
+                                                            reservationPendingReservationsRecord
+                                                                .reservedFrom!,
+                                                            getCurrentTimestamp,
+                                                            columnParkingLotRecord
+                                                                .reservationPricePerMinute),
+                                                  ));
+
+                                                  await reservationPendingReservationsRecord
+                                                      .reference
+                                                      .update(
+                                                          createReservationsRecordData(
+                                                    reservedTo:
+                                                        getCurrentTimestamp,
+                                                    price: valueOrDefault(
+                                                        currentUserDocument
+                                                            ?.reservationPrice,
+                                                        0.0),
+                                                  ));
+
+                                                  context.goNamed(
                                                       'addCarAfterReservation');
                                                 },
                                                 text: 'Arrived - Park car',
@@ -401,51 +425,112 @@ class _ReservationPendingWidgetState extends State<ReservationPendingWidget> {
                                                           ) ??
                                                           false;
                                                   if (confirmDialogResponse) {
-                                                    await showModalBottomSheet(
-                                                      isScrollControlled: true,
-                                                      backgroundColor:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primaryBackground,
-                                                      enableDrag: false,
-                                                      context: context,
-                                                      builder: (context) {
-                                                        return GestureDetector(
-                                                          onTap: () => _model
-                                                                  .unfocusNode
-                                                                  .canRequestFocus
-                                                              ? FocusScope.of(
-                                                                      context)
-                                                                  .requestFocus(
-                                                                      _model
-                                                                          .unfocusNode)
-                                                              : FocusScope.of(
-                                                                      context)
-                                                                  .unfocus(),
-                                                          child: Padding(
-                                                            padding: MediaQuery
-                                                                .viewInsetsOf(
-                                                                    context),
-                                                            child: Container(
-                                                              height: 450.0,
-                                                              child:
-                                                                  PaymentModalWidget(
-                                                                paymentSum: functions.calculatReservationPrice(
-                                                                    reservationPendingReservationsRecord
-                                                                        .reservedFrom!,
-                                                                    getCurrentTimestamp,
-                                                                    columnParkingLotRecord
-                                                                        .reservationPricePerMinute),
-                                                                isParkingPayment:
-                                                                    false,
-                                                              ),
+                                                    final paymentResponse =
+                                                        await processStripePayment(
+                                                      context,
+                                                      amount: functions.convertPriceForPayment(
+                                                          functions.calculatReservationPrice(
+                                                              reservationPendingReservationsRecord
+                                                                  .reservedFrom!,
+                                                              getCurrentTimestamp,
+                                                              columnParkingLotRecord
+                                                                  .reservationPricePerMinute)),
+                                                      currency: 'EUR',
+                                                      customerEmail:
+                                                          currentUserEmail,
+                                                      description: 'Parking',
+                                                      allowGooglePay: false,
+                                                      allowApplePay: false,
+                                                      themeStyle:
+                                                          ThemeMode.system,
+                                                    );
+                                                    if (paymentResponse
+                                                                .paymentId ==
+                                                            null &&
+                                                        paymentResponse
+                                                                .errorMessage !=
+                                                            null) {
+                                                      showSnackbar(
+                                                        context,
+                                                        'Error: ${paymentResponse.errorMessage}',
+                                                      );
+                                                    }
+                                                    _model.paymentId =
+                                                        paymentResponse
+                                                                .paymentId ??
+                                                            '';
+
+                                                    if (_model.paymentId !=
+                                                            null &&
+                                                        _model.paymentId !=
+                                                            '') {
+                                                      await PaymentsRecord
+                                                          .collection
+                                                          .doc()
+                                                          .set(
+                                                              createPaymentsRecordData(
+                                                            paymentUser:
+                                                                currentUserReference,
+                                                            paymentDate:
+                                                                getCurrentTimestamp,
+                                                            paymentStatus:
+                                                                'Complete',
+                                                            paymentAmount: functions.calculatReservationPrice(
+                                                                reservationPendingReservationsRecord
+                                                                    .reservedFrom!,
+                                                                getCurrentTimestamp,
+                                                                columnParkingLotRecord
+                                                                    .reservationPricePerMinute),
+                                                            paymentId: _model
+                                                                .paymentId,
+                                                          ));
+
+                                                      context.goNamed(
+                                                        'paymentComplete',
+                                                        queryParameters: {
+                                                          'payedPrice':
+                                                              serializeParam(
+                                                            functions.calculatReservationPrice(
+                                                                reservationPendingReservationsRecord
+                                                                    .reservedFrom!,
+                                                                getCurrentTimestamp,
+                                                                columnParkingLotRecord
+                                                                    .reservationPricePerMinute),
+                                                            ParamType.double,
+                                                          ),
+                                                          'isParkingPayment':
+                                                              serializeParam(
+                                                            false,
+                                                            ParamType.bool,
+                                                          ),
+                                                        }.withoutNulls,
+                                                      );
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                        SnackBar(
+                                                          content: Text(
+                                                            'Payment failed. Please try it again.',
+                                                            style: TextStyle(
+                                                              color: FlutterFlowTheme
+                                                                      .of(context)
+                                                                  .primaryText,
                                                             ),
                                                           ),
-                                                        );
-                                                      },
-                                                    ).then((value) =>
-                                                        safeSetState(() {}));
+                                                          duration: Duration(
+                                                              milliseconds:
+                                                                  4000),
+                                                          backgroundColor:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .secondary,
+                                                        ),
+                                                      );
+                                                    }
                                                   }
+
+                                                  setState(() {});
                                                 },
                                                 text:
                                                     'Cancel reservation and pay',

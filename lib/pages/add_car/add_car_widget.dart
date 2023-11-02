@@ -103,754 +103,657 @@ class _AddCarWidgetState extends State<AddCarWidget>
       );
     }
 
-    return StreamBuilder<List<ChargingSpotsRecord>>(
-      stream: queryChargingSpotsRecord(
-        queryBuilder: (chargingSpotsRecord) => chargingSpotsRecord
-            .where(
-              'isOccupied',
-              isEqualTo: false,
-            )
-            .where(
-              'isReserved',
-              isEqualTo: false,
-            ),
-        singleRecord: true,
-      ),
-      builder: (context, snapshot) {
-        // Customize what your widget looks like when it's loading.
-        if (!snapshot.hasData) {
-          return Scaffold(
-            backgroundColor: FlutterFlowTheme.of(context).customColor1,
-            body: Center(
-              child: SizedBox(
-                width: 50.0,
-                height: 50.0,
-                child: SpinKitCubeGrid(
-                  color: FlutterFlowTheme.of(context).primary,
-                  size: 50.0,
-                ),
-              ),
-            ),
-          );
-        }
-        List<ChargingSpotsRecord> addCarChargingSpotsRecordList =
-            snapshot.data!;
-        // Return an empty Container when the item does not exist.
-        if (snapshot.data!.isEmpty) {
-          return Container();
-        }
-        final addCarChargingSpotsRecord =
-            addCarChargingSpotsRecordList.isNotEmpty
-                ? addCarChargingSpotsRecordList.first
-                : null;
-        return Scaffold(
-          key: scaffoldKey,
-          backgroundColor: FlutterFlowTheme.of(context).customColor1,
-          appBar: AppBar(
-            backgroundColor: FlutterFlowTheme.of(context).customColor1,
-            automaticallyImplyLeading: false,
-            leading: InkWell(
-              splashColor: Colors.transparent,
-              focusColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: () async {
-                context.pop();
-              },
-              child: Icon(
-                Icons.arrow_back_rounded,
-                color: FlutterFlowTheme.of(context).dark400,
-                size: 24.0,
-              ),
-            ),
-            title: Text(
-              'Add Your Car',
-              style: FlutterFlowTheme.of(context).titleSmall,
-            ),
-            actions: [],
-            centerTitle: false,
-            elevation: 0.0,
+    return Scaffold(
+      key: scaffoldKey,
+      backgroundColor: FlutterFlowTheme.of(context).customColor1,
+      appBar: AppBar(
+        backgroundColor: FlutterFlowTheme.of(context).customColor1,
+        automaticallyImplyLeading: false,
+        leading: InkWell(
+          splashColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () async {
+            context.pop();
+          },
+          child: Icon(
+            Icons.arrow_back_rounded,
+            color: FlutterFlowTheme.of(context).dark400,
+            size: 24.0,
           ),
-          body: SafeArea(
-            top: true,
-            child: StreamBuilder<List<CarRecord>>(
-              stream: queryCarRecord(
-                singleRecord: true,
-              ),
-              builder: (context, snapshot) {
-                // Customize what your widget looks like when it's loading.
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: SizedBox(
-                      width: 50.0,
-                      height: 50.0,
-                      child: SpinKitCubeGrid(
-                        color: FlutterFlowTheme.of(context).primary,
-                        size: 50.0,
-                      ),
-                    ),
-                  );
-                }
-                List<CarRecord> columnCarRecordList = snapshot.data!;
-                final columnCarRecord = columnCarRecordList.isNotEmpty
-                    ? columnCarRecordList.first
+        ),
+        title: Text(
+          'Add Your Car',
+          style: FlutterFlowTheme.of(context).titleSmall,
+        ),
+        actions: [],
+        centerTitle: false,
+        elevation: 0.0,
+      ),
+      body: SafeArea(
+        top: true,
+        child: FutureBuilder<List<ChargingSpotsRecord>>(
+          future: queryChargingSpotsRecordOnce(
+            queryBuilder: (chargingSpotsRecord) => chargingSpotsRecord
+                .where(
+                  'isOccupied',
+                  isEqualTo: false,
+                )
+                .where(
+                  'isReserved',
+                  isEqualTo: false,
+                ),
+            singleRecord: true,
+          ),
+          builder: (context, snapshot) {
+            // Customize what your widget looks like when it's loading.
+            if (!snapshot.hasData) {
+              return Center(
+                child: SizedBox(
+                  width: 50.0,
+                  height: 50.0,
+                  child: SpinKitCubeGrid(
+                    color: FlutterFlowTheme.of(context).primary,
+                    size: 50.0,
+                  ),
+                ),
+              );
+            }
+            List<ChargingSpotsRecord> columnChargingSpotsRecordList =
+                snapshot.data!;
+            final columnChargingSpotsRecord =
+                columnChargingSpotsRecordList.isNotEmpty
+                    ? columnChargingSpotsRecordList.first
                     : null;
-                return SingleChildScrollView(
-                  child: Column(
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Row(
                     mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/images/shutterstock_678961774.png',
-                            width: MediaQuery.sizeOf(context).width * 1.0,
-                            height: 200.0,
-                            fit: BoxFit.cover,
-                          ).animateOnPageLoad(
-                              animationsMap['imageOnPageLoadAnimation']!),
-                        ],
-                      ),
-                      Form(
-                        key: _model.formKey,
-                        autovalidateMode: AutovalidateMode.disabled,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  20.0, 0.0, 20.0, 16.0),
-                              child: TextFormField(
-                                controller:
-                                    _model.vehicleRegistraionPlateController,
-                                focusNode:
-                                    _model.vehicleRegistraionPlateFocusNode,
-                                onChanged: (_) => EasyDebounce.debounce(
-                                  '_model.vehicleRegistraionPlateController',
-                                  Duration(milliseconds: 2000),
-                                  () => setState(() {}),
-                                ),
-                                obscureText: false,
-                                decoration: InputDecoration(
-                                  labelText: 'Vehicle registration plate',
-                                  labelStyle:
-                                      FlutterFlowTheme.of(context).bodySmall,
-                                  hintStyle:
-                                      FlutterFlowTheme.of(context).bodySmall,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: FlutterFlowTheme.of(context)
-                                          .grayLighter,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  filled: true,
-                                  fillColor:
-                                      FlutterFlowTheme.of(context).customColor1,
-                                  contentPadding:
-                                      EdgeInsetsDirectional.fromSTEB(
-                                          20.0, 24.0, 0.0, 24.0),
-                                  suffixIcon: _model
-                                          .vehicleRegistraionPlateController!
-                                          .text
-                                          .isNotEmpty
-                                      ? InkWell(
-                                          onTap: () async {
-                                            _model
-                                                .vehicleRegistraionPlateController
-                                                ?.clear();
-                                            setState(() {});
-                                          },
-                                          child: Icon(
-                                            Icons.clear,
-                                            color: Color(0xFF757575),
-                                            size: 22.0,
-                                          ),
-                                        )
-                                      : null,
-                                ),
-                                style: FlutterFlowTheme.of(context).bodyMedium,
-                                validator: _model
-                                    .vehicleRegistraionPlateControllerValidator
-                                    .asValidator(context),
-                              ),
-                            ),
-                            wrapWithModel(
-                              model: _model.batteryLimitSliderModel,
-                              updateCallback: () => setState(() {}),
-                              child: BatteryLimitSliderWidget(),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 0.0, 16.0),
-                              child: Row(
+                      Image.asset(
+                        'assets/images/shutterstock_678961774.png',
+                        width: MediaQuery.sizeOf(context).width * 1.0,
+                        height: 200.0,
+                        fit: BoxFit.fitHeight,
+                      ).animateOnPageLoad(
+                          animationsMap['imageOnPageLoadAnimation']!),
+                    ],
+                  ),
+                  Form(
+                    key: _model.formKey,
+                    autovalidateMode: AutovalidateMode.disabled,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        wrapWithModel(
+                          model: _model.batteryLimitSliderModel,
+                          updateCallback: () => setState(() {}),
+                          child: BatteryLimitSliderWidget(),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              0.0, 0.0, 0.0, 16.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Column(
                                 mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      Text(
-                                        'Planned departure time',
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium,
-                                      ),
-                                      Text(
-                                        valueOrDefault<String>(
-                                          _model.datePicked?.toString(),
-                                          'Please set',
-                                        ),
-                                        style: FlutterFlowTheme.of(context)
-                                            .bodyMedium,
-                                      ),
-                                    ],
+                                  Text(
+                                    'Planned departure time',
+                                    style:
+                                        FlutterFlowTheme.of(context).bodyMedium,
                                   ),
-                                  FFButtonWidget(
-                                    onPressed: () async {
-                                      if (kIsWeb) {
-                                        final _datePickedDate =
-                                            await showDatePicker(
-                                          context: context,
-                                          initialDate: getCurrentTimestamp,
-                                          firstDate: getCurrentTimestamp,
-                                          lastDate: DateTime(2050),
-                                        );
-
-                                        TimeOfDay? _datePickedTime;
-                                        if (_datePickedDate != null) {
-                                          _datePickedTime =
-                                              await showTimePicker(
-                                            context: context,
-                                            initialTime: TimeOfDay.fromDateTime(
-                                                getCurrentTimestamp),
-                                          );
-                                        }
-
-                                        if (_datePickedDate != null &&
-                                            _datePickedTime != null) {
-                                          safeSetState(() {
-                                            _model.datePicked = DateTime(
-                                              _datePickedDate.year,
-                                              _datePickedDate.month,
-                                              _datePickedDate.day,
-                                              _datePickedTime!.hour,
-                                              _datePickedTime.minute,
-                                            );
-                                          });
-                                        }
-                                      } else {
-                                        await DatePicker.showDateTimePicker(
-                                          context,
-                                          showTitleActions: true,
-                                          onConfirm: (date) {
-                                            safeSetState(() {
-                                              _model.datePicked = date;
-                                            });
-                                          },
-                                          currentTime: getCurrentTimestamp,
-                                          minTime: getCurrentTimestamp,
-                                          locale: LocaleType.values.firstWhere(
-                                            (l) =>
-                                                l.name ==
-                                                FFLocalizations.of(context)
-                                                    .languageCode,
-                                            orElse: () => LocaleType.en,
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    text: 'Set',
-                                    options: FFButtonOptions(
-                                      height: 40.0,
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          24.0, 0.0, 24.0, 0.0),
-                                      iconPadding:
-                                          EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color:
-                                          FlutterFlowTheme.of(context).primary,
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            fontFamily: 'Outfit',
-                                            color: Colors.white,
-                                          ),
-                                      elevation: 3.0,
-                                      borderSide: BorderSide(
-                                        color: Colors.transparent,
-                                        width: 1.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8.0),
+                                  Text(
+                                    valueOrDefault<String>(
+                                      _model.datePicked?.toString(),
+                                      'Please set',
                                     ),
+                                    style:
+                                        FlutterFlowTheme.of(context).bodyMedium,
                                   ),
-                                ].divide(SizedBox(width: 50.0)),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  20.0, 0.0, 20.0, 12.0),
-                              child: TextFormField(
-                                controller: _model.batterySizeController,
-                                focusNode: _model.batterySizeFocusNode,
-                                obscureText: false,
-                                decoration: InputDecoration(
-                                  labelText: 'Battery size (kWh)',
-                                  labelStyle:
-                                      FlutterFlowTheme.of(context).bodySmall,
-                                  hintStyle:
-                                      FlutterFlowTheme.of(context).bodySmall,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: FlutterFlowTheme.of(context)
-                                          .grayLighter,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  filled: true,
-                                  fillColor:
-                                      FlutterFlowTheme.of(context).customColor1,
-                                  contentPadding:
-                                      EdgeInsetsDirectional.fromSTEB(
-                                          20.0, 24.0, 0.0, 24.0),
-                                ),
-                                style: FlutterFlowTheme.of(context).bodyMedium,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                        decimal: true),
-                                validator: _model.batterySizeControllerValidator
-                                    .asValidator(context),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  20.0, 0.0, 20.0, 12.0),
-                              child: TextFormField(
-                                controller: _model.averageConsumptionController,
-                                focusNode: _model.averageConsumptionFocusNode,
-                                obscureText: false,
-                                decoration: InputDecoration(
-                                  labelText: 'Average consumption (kWh)',
-                                  labelStyle:
-                                      FlutterFlowTheme.of(context).bodySmall,
-                                  hintStyle:
-                                      FlutterFlowTheme.of(context).bodySmall,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: FlutterFlowTheme.of(context)
-                                          .grayLighter,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  filled: true,
-                                  fillColor:
-                                      FlutterFlowTheme.of(context).customColor1,
-                                  contentPadding:
-                                      EdgeInsetsDirectional.fromSTEB(
-                                          20.0, 24.0, 0.0, 24.0),
-                                ),
-                                style: FlutterFlowTheme.of(context).bodyMedium,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                        decimal: true),
-                                validator: _model
-                                    .averageConsumptionControllerValidator
-                                    .asValidator(context),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  20.0, 0.0, 20.0, 12.0),
-                              child: TextFormField(
-                                controller: _model.chargePercentageController,
-                                focusNode: _model.chargePercentageFocusNode,
-                                obscureText: false,
-                                decoration: InputDecoration(
-                                  labelText: 'Charge percentage',
-                                  labelStyle:
-                                      FlutterFlowTheme.of(context).bodySmall,
-                                  hintStyle:
-                                      FlutterFlowTheme.of(context).bodySmall,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: FlutterFlowTheme.of(context)
-                                          .grayLighter,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Color(0x00000000),
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  filled: true,
-                                  fillColor:
-                                      FlutterFlowTheme.of(context).customColor1,
-                                  contentPadding:
-                                      EdgeInsetsDirectional.fromSTEB(
-                                          20.0, 24.0, 0.0, 24.0),
-                                ),
-                                style: FlutterFlowTheme.of(context).bodyMedium,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                        decimal: true),
-                                validator: _model
-                                    .chargePercentageControllerValidator
-                                    .asValidator(context),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp('[0-9]'))
                                 ],
                               ),
-                            ),
-                            StreamBuilder<ParkingLotRecord>(
-                              stream: ParkingLotRecord.getDocument(
-                                  addCarChargingSpotsRecord!.parkingLot!),
-                              builder: (context, snapshot) {
-                                // Customize what your widget looks like when it's loading.
-                                if (!snapshot.hasData) {
-                                  return Center(
-                                    child: SizedBox(
-                                      width: 50.0,
-                                      height: 50.0,
-                                      child: SpinKitCubeGrid(
-                                        color: FlutterFlowTheme.of(context)
-                                            .primary,
-                                        size: 50.0,
+                              FFButtonWidget(
+                                onPressed: () async {
+                                  if (kIsWeb) {
+                                    final _datePickedDate =
+                                        await showDatePicker(
+                                      context: context,
+                                      initialDate: getCurrentTimestamp,
+                                      firstDate: getCurrentTimestamp,
+                                      lastDate: DateTime(2050),
+                                    );
+
+                                    TimeOfDay? _datePickedTime;
+                                    if (_datePickedDate != null) {
+                                      _datePickedTime = await showTimePicker(
+                                        context: context,
+                                        initialTime: TimeOfDay.fromDateTime(
+                                            getCurrentTimestamp),
+                                      );
+                                    }
+
+                                    if (_datePickedDate != null &&
+                                        _datePickedTime != null) {
+                                      safeSetState(() {
+                                        _model.datePicked = DateTime(
+                                          _datePickedDate.year,
+                                          _datePickedDate.month,
+                                          _datePickedDate.day,
+                                          _datePickedTime!.hour,
+                                          _datePickedTime.minute,
+                                        );
+                                      });
+                                    }
+                                  } else {
+                                    await DatePicker.showDateTimePicker(
+                                      context,
+                                      showTitleActions: true,
+                                      onConfirm: (date) {
+                                        safeSetState(() {
+                                          _model.datePicked = date;
+                                        });
+                                      },
+                                      currentTime: getCurrentTimestamp,
+                                      minTime: getCurrentTimestamp,
+                                      locale: LocaleType.values.firstWhere(
+                                        (l) =>
+                                            l.name ==
+                                            FFLocalizations.of(context)
+                                                .languageCode,
+                                        orElse: () => LocaleType.en,
                                       ),
-                                    ),
-                                  );
-                                }
-                                final containerParkingLotRecord =
-                                    snapshot.data!;
-                                return Container(
-                                  width: MediaQuery.sizeOf(context).width * 0.9,
-                                  decoration: BoxDecoration(
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryBackground,
+                                    );
+                                  }
+                                },
+                                text: 'Set',
+                                options: FFButtonOptions(
+                                  height: 40.0,
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      24.0, 0.0, 24.0, 0.0),
+                                  iconPadding: EdgeInsetsDirectional.fromSTEB(
+                                      0.0, 0.0, 0.0, 0.0),
+                                  color: FlutterFlowTheme.of(context).primary,
+                                  textStyle: FlutterFlowTheme.of(context)
+                                      .titleSmall
+                                      .override(
+                                        fontFamily: 'Outfit',
+                                        color: Colors.white,
+                                      ),
+                                  elevation: 3.0,
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
                                   ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      if (!(addCarChargingSpotsRecord != null))
-                                        Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 20.0, 0.0, 30.0),
-                                          child: Text(
-                                            'No availabile charging spots',
-                                            style: FlutterFlowTheme.of(context)
-                                                .headlineMedium,
-                                          ),
-                                        ),
-                                      if (addCarChargingSpotsRecord != null)
-                                        Align(
-                                          alignment:
-                                              AlignmentDirectional(0.00, 0.05),
-                                          child: Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    0.0, 24.0, 0.0, 40.0),
-                                            child: FFButtonWidget(
-                                              onPressed: () async {
-                                                final firestoreBatch =
-                                                    FirebaseFirestore.instance
-                                                        .batch();
-                                                try {
-                                                  if (_model.formKey
-                                                              .currentState ==
-                                                          null ||
-                                                      !_model
-                                                          .formKey.currentState!
-                                                          .validate()) {
-                                                    return;
-                                                  }
-
-                                                  var carRecordReference =
-                                                      CarRecord.collection
-                                                          .doc();
-                                                  firestoreBatch.set(
-                                                      carRecordReference,
-                                                      createCarRecordData(
-                                                        batteryChargePercentage:
-                                                            double.tryParse(_model
-                                                                .chargePercentageController
-                                                                .text),
-                                                        batterySizeKwh: double
-                                                            .tryParse(_model
-                                                                .batterySizeController
-                                                                .text),
-                                                        availableRange: functions.calculateRange(
-                                                            double.parse(_model
-                                                                .batterySizeController
-                                                                .text),
-                                                            double.parse(_model
-                                                                .chargePercentageController
-                                                                .text),
-                                                            double.parse(_model
-                                                                .averageConsumptionController
-                                                                .text)),
-                                                        vehicleRegistrationPlate:
-                                                            _model
-                                                                .vehicleRegistraionPlateController
-                                                                .text,
-                                                        averageConsumptionKWh:
-                                                            double.tryParse(_model
-                                                                .averageConsumptionController
-                                                                .text),
-                                                        carUser:
-                                                            currentUserReference,
-                                                        desiredDepartureDateTime:
-                                                            _model.datePicked,
-                                                        desiredChargeAtDeparture:
-                                                            functions.stringToInt(
-                                                                valueOrDefault<
-                                                                    String>(
-                                                          _model
-                                                              .batteryLimitSliderModel
-                                                              .sliderValue
-                                                              ?.toString(),
-                                                          '80',
-                                                        )),
-                                                        carChargingSpot:
-                                                            addCarChargingSpotsRecord
-                                                                ?.reference,
-                                                        parkedFrom:
-                                                            getCurrentTimestamp,
-                                                      ));
-                                                  _model.outputCar = CarRecord
-                                                      .getDocumentFromData(
-                                                          createCarRecordData(
-                                                            batteryChargePercentage:
-                                                                double.tryParse(
-                                                                    _model
-                                                                        .chargePercentageController
-                                                                        .text),
-                                                            batterySizeKwh: double
-                                                                .tryParse(_model
-                                                                    .batterySizeController
-                                                                    .text),
-                                                            availableRange: functions.calculateRange(
-                                                                double.parse(_model
-                                                                    .batterySizeController
-                                                                    .text),
-                                                                double.parse(_model
-                                                                    .chargePercentageController
-                                                                    .text),
-                                                                double.parse(_model
-                                                                    .averageConsumptionController
-                                                                    .text)),
-                                                            vehicleRegistrationPlate:
-                                                                _model
-                                                                    .vehicleRegistraionPlateController
-                                                                    .text,
-                                                            averageConsumptionKWh:
-                                                                double.tryParse(
-                                                                    _model
-                                                                        .averageConsumptionController
-                                                                        .text),
-                                                            carUser:
-                                                                currentUserReference,
-                                                            desiredDepartureDateTime:
-                                                                _model
-                                                                    .datePicked,
-                                                            desiredChargeAtDeparture:
-                                                                functions.stringToInt(
-                                                                    valueOrDefault<
-                                                                        String>(
-                                                              _model
-                                                                  .batteryLimitSliderModel
-                                                                  .sliderValue
-                                                                  ?.toString(),
-                                                              '80',
-                                                            )),
-                                                            carChargingSpot:
-                                                                addCarChargingSpotsRecord
-                                                                    ?.reference,
-                                                            parkedFrom:
-                                                                getCurrentTimestamp,
-                                                          ),
-                                                          carRecordReference);
-
-                                                  firestoreBatch.update(
-                                                      currentUserReference!,
-                                                      createUsersRecordData(
-                                                        car: _model.outputCar
-                                                            ?.reference,
-                                                        chargingSpot:
-                                                            addCarChargingSpotsRecord
-                                                                ?.reference,
-                                                        parkingPrice: 0.0,
-                                                        reservationPrice: 0.0,
-                                                        parkingLot:
-                                                            addCarChargingSpotsRecord
-                                                                ?.parkingLot,
-                                                      ));
-
-                                                  firestoreBatch.update(
-                                                      addCarChargingSpotsRecord!
-                                                          .reference,
-                                                      createChargingSpotsRecordData(
-                                                        isOccupied: true,
-                                                        isReserved: false,
-                                                        car: currentUserDocument
-                                                            ?.car,
-                                                        user:
-                                                            currentUserReference,
-                                                        isCharging: true,
-                                                        reservation: null,
-                                                      ));
-                                                  await Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 1000));
-
-                                                  context.goNamed('HomePage');
-                                                } finally {
-                                                  await firestoreBatch.commit();
-                                                }
-
-                                                setState(() {});
-                                              },
-                                              text: 'Complete Account',
-                                              options: FFButtonOptions(
-                                                width: 230.0,
-                                                height: 50.0,
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(
-                                                        0.0, 0.0, 0.0, 0.0),
-                                                iconPadding:
-                                                    EdgeInsetsDirectional
-                                                        .fromSTEB(
-                                                            0.0, 0.0, 0.0, 0.0),
-                                                color: Color(0xFF39D2C0),
-                                                textStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleSmall
-                                                        .override(
-                                                          fontFamily:
-                                                              'Lexend Deca',
-                                                          color: Colors.white,
-                                                          fontSize: 16.0,
-                                                          fontWeight:
-                                                              FontWeight.normal,
-                                                        ),
-                                                elevation: 2.0,
-                                                borderSide: BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 1.0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(30.0),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                              ),
+                            ].divide(SizedBox(width: 50.0)),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              20.0, 0.0, 20.0, 16.0),
+                          child: TextFormField(
+                            controller:
+                                _model.vehicleRegistraionPlateController,
+                            focusNode: _model.vehicleRegistraionPlateFocusNode,
+                            onChanged: (_) => EasyDebounce.debounce(
+                              '_model.vehicleRegistraionPlateController',
+                              Duration(milliseconds: 2000),
+                              () => setState(() {}),
+                            ),
+                            textInputAction: TextInputAction.next,
+                            obscureText: false,
+                            decoration: InputDecoration(
+                              labelText: 'Vehicle registration plate',
+                              labelStyle:
+                                  FlutterFlowTheme.of(context).bodySmall,
+                              hintStyle: FlutterFlowTheme.of(context).bodySmall,
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color:
+                                      FlutterFlowTheme.of(context).grayLighter,
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              filled: true,
+                              fillColor:
+                                  FlutterFlowTheme.of(context).customColor1,
+                              contentPadding: EdgeInsetsDirectional.fromSTEB(
+                                  20.0, 24.0, 0.0, 24.0),
+                              suffixIcon: _model
+                                      .vehicleRegistraionPlateController!
+                                      .text
+                                      .isNotEmpty
+                                  ? InkWell(
+                                      onTap: () async {
+                                        _model.vehicleRegistraionPlateController
+                                            ?.clear();
+                                        setState(() {});
+                                      },
+                                      child: Icon(
+                                        Icons.clear,
+                                        color: Color(0xFF757575),
+                                        size: 22.0,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                            style: FlutterFlowTheme.of(context).bodyMedium,
+                            validator: _model
+                                .vehicleRegistraionPlateControllerValidator
+                                .asValidator(context),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              20.0, 0.0, 20.0, 12.0),
+                          child: TextFormField(
+                            controller: _model.batterySizeController,
+                            focusNode: _model.batterySizeFocusNode,
+                            textInputAction: TextInputAction.next,
+                            obscureText: false,
+                            decoration: InputDecoration(
+                              labelText: 'Battery size (kWh)',
+                              labelStyle:
+                                  FlutterFlowTheme.of(context).bodySmall,
+                              hintStyle: FlutterFlowTheme.of(context).bodySmall,
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color:
+                                      FlutterFlowTheme.of(context).grayLighter,
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              filled: true,
+                              fillColor:
+                                  FlutterFlowTheme.of(context).customColor1,
+                              contentPadding: EdgeInsetsDirectional.fromSTEB(
+                                  20.0, 24.0, 0.0, 24.0),
+                            ),
+                            style: FlutterFlowTheme.of(context).bodyMedium,
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            validator: _model.batterySizeControllerValidator
+                                .asValidator(context),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp('[\\d\\.]'))
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              20.0, 0.0, 20.0, 12.0),
+                          child: TextFormField(
+                            controller: _model.averageConsumptionController,
+                            focusNode: _model.averageConsumptionFocusNode,
+                            textCapitalization: TextCapitalization.none,
+                            textInputAction: TextInputAction.next,
+                            obscureText: false,
+                            decoration: InputDecoration(
+                              labelText: 'Average consumption (kWh)',
+                              labelStyle:
+                                  FlutterFlowTheme.of(context).bodySmall,
+                              hintStyle: FlutterFlowTheme.of(context).bodySmall,
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color:
+                                      FlutterFlowTheme.of(context).grayLighter,
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              filled: true,
+                              fillColor:
+                                  FlutterFlowTheme.of(context).customColor1,
+                              contentPadding: EdgeInsetsDirectional.fromSTEB(
+                                  20.0, 24.0, 0.0, 24.0),
+                            ),
+                            style: FlutterFlowTheme.of(context).bodyMedium,
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            validator: _model
+                                .averageConsumptionControllerValidator
+                                .asValidator(context),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp('[\\d\\.]'))
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              20.0, 0.0, 20.0, 12.0),
+                          child: TextFormField(
+                            controller: _model.chargePercentageController,
+                            focusNode: _model.chargePercentageFocusNode,
+                            textInputAction: TextInputAction.done,
+                            obscureText: false,
+                            decoration: InputDecoration(
+                              labelText: 'Charge percentage',
+                              labelStyle:
+                                  FlutterFlowTheme.of(context).bodySmall,
+                              hintStyle: FlutterFlowTheme.of(context).bodySmall,
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color:
+                                      FlutterFlowTheme.of(context).grayLighter,
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color(0x00000000),
+                                  width: 2.0,
+                                ),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              filled: true,
+                              fillColor:
+                                  FlutterFlowTheme.of(context).customColor1,
+                              contentPadding: EdgeInsetsDirectional.fromSTEB(
+                                  20.0, 24.0, 0.0, 24.0),
+                            ),
+                            style: FlutterFlowTheme.of(context).bodyMedium,
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            validator: _model
+                                .chargePercentageControllerValidator
+                                .asValidator(context),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                  RegExp('[\\d\\.]'))
+                            ],
+                          ),
+                        ),
+                        if (columnChargingSpotsRecord != null)
+                          StreamBuilder<ParkingLotRecord>(
+                            stream: ParkingLotRecord.getDocument(
+                                columnChargingSpotsRecord!.parkingLot!),
+                            builder: (context, snapshot) {
+                              // Customize what your widget looks like when it's loading.
+                              if (!snapshot.hasData) {
+                                return Center(
+                                  child: SizedBox(
+                                    width: 50.0,
+                                    height: 50.0,
+                                    child: SpinKitCubeGrid(
+                                      color:
+                                          FlutterFlowTheme.of(context).primary,
+                                      size: 50.0,
+                                    ),
+                                  ),
+                                );
+                              }
+                              final containerParkingLotRecord = snapshot.data!;
+                              return Container(
+                                width: MediaQuery.sizeOf(context).width * 0.9,
+                                decoration: BoxDecoration(
+                                  color: FlutterFlowTheme.of(context)
+                                      .secondaryBackground,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    if (columnChargingSpotsRecord != null)
                                       Align(
                                         alignment:
                                             AlignmentDirectional(0.00, 0.05),
                                         child: Padding(
                                           padding:
                                               EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 0.0, 40.0),
+                                                  0.0, 24.0, 0.0, 40.0),
                                           child: FFButtonWidget(
                                             onPressed: () async {
-                                              GoRouter.of(context)
-                                                  .prepareAuthEvent();
-                                              await authManager.signOut();
-                                              GoRouter.of(context)
-                                                  .clearRedirectLocation();
-
-                                              if (Navigator.of(context)
-                                                  .canPop()) {
-                                                context.pop();
+                                              if (_model.formKey.currentState ==
+                                                      null ||
+                                                  !_model.formKey.currentState!
+                                                      .validate()) {
+                                                return;
                                               }
-                                              context.pushNamedAuth(
-                                                  'Login', context.mounted);
+
+                                              var carRecordReference =
+                                                  CarRecord.collection.doc();
+                                              await carRecordReference
+                                                  .set(createCarRecordData(
+                                                batteryChargePercentage: functions
+                                                    .stringToDouble(_model
+                                                        .chargePercentageController
+                                                        .text),
+                                                batterySizeKwh: functions
+                                                    .stringToDouble(_model
+                                                        .batterySizeController
+                                                        .text),
+                                                availableRange: functions.calculateRange(
+                                                    functions.stringToDouble(
+                                                        _model
+                                                            .batterySizeController
+                                                            .text),
+                                                    functions.stringToDouble(_model
+                                                        .chargePercentageController
+                                                        .text),
+                                                    functions.stringToDouble(_model
+                                                        .averageConsumptionController
+                                                        .text)),
+                                                vehicleRegistrationPlate: _model
+                                                    .vehicleRegistraionPlateController
+                                                    .text,
+                                                averageConsumptionKWh: functions
+                                                    .stringToDouble(_model
+                                                        .averageConsumptionController
+                                                        .text),
+                                                carUser: currentUserReference,
+                                                desiredDepartureDateTime:
+                                                    _model.datePicked,
+                                                desiredChargeAtDeparture:
+                                                    valueOrDefault<int>(
+                                                  functions.stringToInt(
+                                                      valueOrDefault<String>(
+                                                    _model
+                                                        .batteryLimitSliderModel
+                                                        .sliderValue
+                                                        ?.toString(),
+                                                    '80',
+                                                  )),
+                                                  80,
+                                                ),
+                                                carChargingSpot:
+                                                    columnChargingSpotsRecord
+                                                        ?.reference,
+                                                parkedFrom: getCurrentTimestamp,
+                                              ));
+                                              _model.outputCar =
+                                                  CarRecord.getDocumentFromData(
+                                                      createCarRecordData(
+                                                        batteryChargePercentage:
+                                                            functions
+                                                                .stringToDouble(
+                                                                    _model
+                                                                        .chargePercentageController
+                                                                        .text),
+                                                        batterySizeKwh: functions
+                                                            .stringToDouble(_model
+                                                                .batterySizeController
+                                                                .text),
+                                                        availableRange: functions.calculateRange(
+                                                            functions
+                                                                .stringToDouble(
+                                                                    _model
+                                                                        .batterySizeController
+                                                                        .text),
+                                                            functions
+                                                                .stringToDouble(
+                                                                    _model
+                                                                        .chargePercentageController
+                                                                        .text),
+                                                            functions
+                                                                .stringToDouble(
+                                                                    _model
+                                                                        .averageConsumptionController
+                                                                        .text)),
+                                                        vehicleRegistrationPlate:
+                                                            _model
+                                                                .vehicleRegistraionPlateController
+                                                                .text,
+                                                        averageConsumptionKWh:
+                                                            functions
+                                                                .stringToDouble(
+                                                                    _model
+                                                                        .averageConsumptionController
+                                                                        .text),
+                                                        carUser:
+                                                            currentUserReference,
+                                                        desiredDepartureDateTime:
+                                                            _model.datePicked,
+                                                        desiredChargeAtDeparture:
+                                                            valueOrDefault<int>(
+                                                          functions.stringToInt(
+                                                              valueOrDefault<
+                                                                  String>(
+                                                            _model
+                                                                .batteryLimitSliderModel
+                                                                .sliderValue
+                                                                ?.toString(),
+                                                            '80',
+                                                          )),
+                                                          80,
+                                                        ),
+                                                        carChargingSpot:
+                                                            columnChargingSpotsRecord
+                                                                ?.reference,
+                                                        parkedFrom:
+                                                            getCurrentTimestamp,
+                                                      ),
+                                                      carRecordReference);
+
+                                              await currentUserReference!
+                                                  .update(createUsersRecordData(
+                                                car:
+                                                    _model.outputCar?.reference,
+                                                chargingSpot:
+                                                    columnChargingSpotsRecord
+                                                        ?.reference,
+                                                parkingPrice: 0.0,
+                                                reservationPrice: 0.0,
+                                                parkingLot:
+                                                    containerParkingLotRecord
+                                                        .reference,
+                                                chargingPrice: 0.0,
+                                              ));
+
+                                              await columnChargingSpotsRecord!
+                                                  .reference
+                                                  .update({
+                                                ...createChargingSpotsRecordData(
+                                                  isOccupied: true,
+                                                  isReserved: false,
+                                                  car: _model
+                                                      .outputCar?.reference,
+                                                  user: currentUserReference,
+                                                  isCharging: true,
+                                                  chargingMode: 1,
+                                                ),
+                                                ...mapToFirestore(
+                                                  {
+                                                    'reservation':
+                                                        FieldValue.delete(),
+                                                  },
+                                                ),
+                                              });
+
+                                              context.goNamed('HomePage');
+
+                                              setState(() {});
                                             },
-                                            text: 'Cancel',
+                                            text: 'Complete Account',
                                             options: FFButtonOptions(
                                               width: 230.0,
                                               height: 50.0,
@@ -858,9 +761,7 @@ class _AddCarWidgetState extends State<AddCarWidget>
                                                   .fromSTEB(0.0, 0.0, 0.0, 0.0),
                                               iconPadding: EdgeInsetsDirectional
                                                   .fromSTEB(0.0, 0.0, 0.0, 0.0),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .error,
+                                              color: Color(0xFF39D2C0),
                                               textStyle:
                                                   FlutterFlowTheme.of(context)
                                                       .titleSmall
@@ -883,22 +784,80 @@ class _AddCarWidgetState extends State<AddCarWidget>
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                    Align(
+                                      alignment:
+                                          AlignmentDirectional(0.00, 0.05),
+                                      child: Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0.0, 0.0, 0.0, 40.0),
+                                        child: FFButtonWidget(
+                                          onPressed: () async {
+                                            GoRouter.of(context)
+                                                .prepareAuthEvent();
+                                            await authManager.signOut();
+                                            GoRouter.of(context)
+                                                .clearRedirectLocation();
+
+                                            context.goNamedAuth(
+                                                'Login', context.mounted);
+                                          },
+                                          text: 'Cancel',
+                                          options: FFButtonOptions(
+                                            width: 230.0,
+                                            height: 50.0,
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 0.0),
+                                            iconPadding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    0.0, 0.0, 0.0, 0.0),
+                                            color: FlutterFlowTheme.of(context)
+                                                .error,
+                                            textStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleSmall
+                                                    .override(
+                                                      fontFamily: 'Lexend Deca',
+                                                      color: Colors.white,
+                                                      fontSize: 16.0,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                    ),
+                                            elevation: 2.0,
+                                            borderSide: BorderSide(
+                                              color: Colors.transparent,
+                                              width: 1.0,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        if (!(columnChargingSpotsRecord != null))
+                          Padding(
+                            padding: EdgeInsetsDirectional.fromSTEB(
+                                0.0, 20.0, 0.0, 30.0),
+                            child: Text(
+                              'No availabile charging spots',
+                              style:
+                                  FlutterFlowTheme.of(context).headlineMedium,
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
+                          ),
+                      ],
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-        );
-      },
+                ],
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

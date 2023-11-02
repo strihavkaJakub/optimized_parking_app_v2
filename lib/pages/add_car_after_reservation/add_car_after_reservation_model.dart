@@ -29,27 +29,87 @@ class AddCarAfterReservationModel
   ///  State fields for stateful widgets in this page.
 
   final formKey = GlobalKey<FormState>();
+  // Model for batteryLimitSlider component.
+  late BatteryLimitSliderModel batteryLimitSliderModel;
+  DateTime? datePicked;
   // State field(s) for vehicleRegistraionPlate widget.
   FocusNode? vehicleRegistraionPlateFocusNode;
   TextEditingController? vehicleRegistraionPlateController;
   String? Function(BuildContext, String?)?
       vehicleRegistraionPlateControllerValidator;
-  // Model for batteryLimitSlider component.
-  late BatteryLimitSliderModel batteryLimitSliderModel;
-  DateTime? datePicked;
+  String? _vehicleRegistraionPlateControllerValidator(
+      BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return 'Field is required';
+    }
+
+    if (val.length < 5) {
+      return 'Requires at least 5 characters.';
+    }
+
+    return null;
+  }
+
   // State field(s) for batterySize widget.
   FocusNode? batterySizeFocusNode;
   TextEditingController? batterySizeController;
   String? Function(BuildContext, String?)? batterySizeControllerValidator;
+  String? _batterySizeControllerValidator(BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return 'Field is required';
+    }
+
+    if (val.length < 1) {
+      return 'Requires at least 1 characters.';
+    }
+
+    if (!RegExp('^\\d+(\\.\\d+)?\$').hasMatch(val)) {
+      return 'Invalid text';
+    }
+    return null;
+  }
+
   // State field(s) for averageConsumption widget.
   FocusNode? averageConsumptionFocusNode;
   TextEditingController? averageConsumptionController;
   String? Function(BuildContext, String?)?
       averageConsumptionControllerValidator;
+  String? _averageConsumptionControllerValidator(
+      BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return 'Field is required';
+    }
+
+    if (val.length < 1) {
+      return 'Requires at least 1 characters.';
+    }
+
+    if (!RegExp('^\\d+(\\.\\d+)?\$').hasMatch(val)) {
+      return 'Invalid text';
+    }
+    return null;
+  }
+
   // State field(s) for chargePercentage widget.
   FocusNode? chargePercentageFocusNode;
   TextEditingController? chargePercentageController;
   String? Function(BuildContext, String?)? chargePercentageControllerValidator;
+  String? _chargePercentageControllerValidator(
+      BuildContext context, String? val) {
+    if (val == null || val.isEmpty) {
+      return 'Field is required';
+    }
+
+    if (val.length < 1) {
+      return 'Requires at least 1 characters.';
+    }
+
+    if (!RegExp('^\\d+(\\.\\d+)?\$').hasMatch(val)) {
+      return 'Invalid text';
+    }
+    return null;
+  }
+
   // Stores action output result for [Backend Call - Create Document] action in Button widget.
   CarRecord? outputCar;
 
@@ -58,13 +118,19 @@ class AddCarAfterReservationModel
   void initState(BuildContext context) {
     batteryLimitSliderModel =
         createModel(context, () => BatteryLimitSliderModel());
+    vehicleRegistraionPlateControllerValidator =
+        _vehicleRegistraionPlateControllerValidator;
+    batterySizeControllerValidator = _batterySizeControllerValidator;
+    averageConsumptionControllerValidator =
+        _averageConsumptionControllerValidator;
+    chargePercentageControllerValidator = _chargePercentageControllerValidator;
   }
 
   void dispose() {
+    batteryLimitSliderModel.dispose();
     vehicleRegistraionPlateFocusNode?.dispose();
     vehicleRegistraionPlateController?.dispose();
 
-    batteryLimitSliderModel.dispose();
     batterySizeFocusNode?.dispose();
     batterySizeController?.dispose();
 

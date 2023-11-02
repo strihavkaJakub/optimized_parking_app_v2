@@ -1,9 +1,11 @@
 import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
+import '/backend/stripe/payment_manager.dart';
 import '/flutter_flow/flutter_flow_credit_card_form.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -126,7 +128,7 @@ class _PaymentModalWidgetState extends State<PaymentModalWidget> {
                 child: FlutterFlowCreditCardForm(
                   formKey: _model.creditCardFormKey,
                   creditCardModel: _model.creditCardInfo,
-                  obscureNumber: true,
+                  obscureNumber: false,
                   obscureCvv: false,
                   spacing: 10.0,
                   textStyle: FlutterFlowTheme.of(context).bodyMedium,
@@ -152,35 +154,62 @@ class _PaymentModalWidgetState extends State<PaymentModalWidget> {
                 padding: EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 40.0),
                 child: FFButtonWidget(
                   onPressed: () async {
-                    await PaymentsRecord.collection
-                        .doc()
-                        .set(createPaymentsRecordData(
-                          paymentUser: currentUserReference,
-                          paymentDate: getCurrentTimestamp,
-                          paymentStatus: 'Complete',
-                          paymentAmount: widget.paymentSum,
-                        ));
-
-                    context.goNamed(
-                      'paymentComplete',
-                      queryParameters: {
-                        'isParkingPayment': serializeParam(
-                          widget.isParkingPayment,
-                          ParamType.bool,
-                        ),
-                        'payedPrice': serializeParam(
-                          widget.paymentSum,
-                          ParamType.double,
-                        ),
-                      }.withoutNulls,
-                      extra: <String, dynamic>{
-                        kTransitionInfoKey: TransitionInfo(
-                          hasTransition: true,
-                          transitionType: PageTransitionType.bottomToTop,
-                          duration: Duration(milliseconds: 250),
-                        ),
-                      },
+                    final paymentResponse = await processStripePayment(
+                      context,
+                      amount: widget.paymentSum! < 0.5
+                          ? 50
+                          : functions
+                              .convertPriceForPayment(widget.paymentSum!),
+                      currency: 'USD',
+                      customerEmail: currentUserEmail,
+                      customerName: currentUserDisplayName,
+                      description: 'Parking payment',
+                      allowGooglePay: false,
+                      allowApplePay: false,
                     );
+                    if (paymentResponse.paymentId == null &&
+                        paymentResponse.errorMessage != null) {
+                      showSnackbar(
+                        context,
+                        'Error: ${paymentResponse.errorMessage}',
+                      );
+                    }
+                    _model.paymentId = paymentResponse.paymentId ?? '';
+
+                    if (_model.paymentId != null && _model.paymentId != '') {
+                      await PaymentsRecord.collection
+                          .doc()
+                          .set(createPaymentsRecordData(
+                            paymentUser: currentUserReference,
+                            paymentDate: getCurrentTimestamp,
+                            paymentStatus: 'Complete',
+                            paymentAmount: widget.paymentSum,
+                            paymentId: _model.paymentId,
+                          ));
+
+                      context.goNamed(
+                        'paymentComplete',
+                        queryParameters: {
+                          'isParkingPayment': serializeParam(
+                            widget.isParkingPayment,
+                            ParamType.bool,
+                          ),
+                          'payedPrice': serializeParam(
+                            widget.paymentSum,
+                            ParamType.double,
+                          ),
+                        }.withoutNulls,
+                        extra: <String, dynamic>{
+                          kTransitionInfoKey: TransitionInfo(
+                            hasTransition: true,
+                            transitionType: PageTransitionType.bottomToTop,
+                            duration: Duration(milliseconds: 250),
+                          ),
+                        },
+                      );
+                    }
+
+                    setState(() {});
                   },
                   text: 'Pay Now',
                   options: FFButtonOptions(
